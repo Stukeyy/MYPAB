@@ -6,96 +6,88 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     public function user(Request $request)
-  {
-    return response([
-      'user' => $request->user(),
-      'token' => $request->user()->currentAccessToken()
-    ]);
-  }
-
-  public function login(Request $request)
-  {
-
-    $login = (object) $request->validate([
-      'email' => 'required|email',
-      'password' => 'required|string'
-    ]);
-
-    if (Auth::attempt($request->only('email', 'password'))) {
-
-      $user = User::where('email', $login->email)->first();
-      $token = $user->createToken('token')->plainTextToken;
-
-      return response([
-        'user' => $user,
-        'token' => $token
-      ]);
-
-    }
-    else {
-      return response(['message' => 'Access Denied'], 401);
+    {
+        return response([
+            'user' => $request->user()
+        ]);
     }
 
-  }
+    public function login(Request $request)
+    {
 
-  public function authUser(Request $request){
+        $login = (object) $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string'
+        ]);
 
-    $user = Auth::user();
-    // $user = $request->user();
+        if (Auth::attempt($request->only('email', 'password'))) {
 
-    // Getting Permissions for User assigned via Role will only return objects which messes up vuex store,
-    // this function gets all permissions via roles or direct and stores names only and sends as array
-    $permissionNames = [];
-    $permissions = $user->getAllPermissions();
+            $user = User::where('email', $login->email)->first();
+            $token = $user->createToken('token')->plainTextToken;
 
-    foreach($permissions as $permission) {
-      array_push($permissionNames, $permission->name);
+            return response([
+                'user' => $user,
+                'token' => $token
+            ]);
+
+        }
+        else {
+            return response(['message' => 'Access Denied'], 401);
+        }
+
     }
 
-    $authDetails = [
-      'id' => $user->id,
-      'user' => $user,
-      'roles' => $user->getRoleNames(),
-      'permissions' => $permissionNames
-    ];
+    public function authUser(Request $request){
 
-    return response($authDetails);
-  }
+        $user = Auth::user();
 
-  public function register(Request $request)
-  {
+        $authDetails = [
+            'id' => $user->id,
+            'user' => new UserResource($user),
+            'name' => $user->fullname,
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getPermissionsViaRoles()->pluck('name')
+        ];
 
-    $register = $request->validate([
-      'name' => 'required|string|max:255',
-      'email' => 'required|string|email|max:255|unique:users',
-      'password' => 'required|string|min:8'
-    ]);
+        return response($authDetails);
+    }
 
-    $user = User::create([
-      'name' => $register['name'],
-      'email' => $register['email'],
-      'password' => Hash::make($register['password'])
-    ]);
+    public function register(Request $request)
+    {
 
-    $token = $user->createToken('token')->plainTextToken;
+        return response($request->all());
 
-    return response([
-      'user' => $user,
-      'token' => $token
-    ]);
+        // $register = (object) $request->validate([
+        //     'email' => 'required|string|email|max:255|unique:users',
+        //     'password' => 'required|string|min:8'
+        // ]);
 
-  }
+        // $user = User::create([
+        //     'name' => $register['name'],
+        //     'email' => $register['email'],
+        //     'password' => Hash::make($register['password'])
+        // ]);
 
-  public function logout(Request $request)
-  {
-      Auth::logout();
-      return response("GOODBYE");
-  }
+        // $token = $user->createToken('token')->plainTextToken;
+
+        // return response([
+        //     'user' => $user,
+        //     'token' => $token
+        // ]);
+
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        return response("GOODBYE");
+    }
 
 }

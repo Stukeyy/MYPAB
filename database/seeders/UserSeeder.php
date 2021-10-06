@@ -40,6 +40,10 @@ class UserSeeder extends Seeder
             "age" => 23,
             "gender" => "male",
             "location" => "down",
+            "level" => "undergraduate",
+            "institution" => "ulster university",
+            "subject" => "interactive media, design & computing",
+            "employed" => false,
             "email" => "stephenr.ross@yahoo.com",
             "email_verified_at" => Carbon::now(),
             "password" => Hash::make("password")

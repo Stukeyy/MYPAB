@@ -62,12 +62,22 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
-        return response($request->all());
+        $register = (object) $request->validate([
+            "firstname" => "required|string",
+            "lastname" => "required|string",
+            "age" => "required|integer|numeric",
+            "gender" => "required|string",
+            "location" => "required|string",
+            "email" => "required|email|unique:users",
+            "password" => "required|string|min:6",
+            "level" => "required|string",
+            "institution" => "required|string",
+            "subject" => "required|string",
+            "employed" => "required|boolean",
+            "company" => "requiredIf:employed,true"
+        ]);
 
-        // $register = (object) $request->validate([
-        //     'email' => 'required|string|email|max:255|unique:users',
-        //     'password' => 'required|string|min:8'
-        // ]);
+        return response($request->all());
 
         // $user = User::create([
         //     'name' => $register['name'],

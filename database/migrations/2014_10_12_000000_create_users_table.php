@@ -20,6 +20,10 @@ class CreateUsersTable extends Migration
             $table->integer('age');
             $table->string('gender');
             $table->string('location');
+            $table->string('level');
+            $table->string('institution');
+            $table->string('subject');
+            $table->string('employed');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

@@ -34,124 +34,78 @@ class DemoSeeder extends Seeder
         $education = Tag::create([
             'name' => 'Education',
             'global' => true,
-            'ancestor_id' => $work->ancestor_id,
             'parent_id' => $work->id,
-            'descendants' => 0,
-            'generation' => ($work->generation + 1),
             'colour' => $faker->hexColor()
         ]);
         $career = Tag::create([
             'name' => 'Career',
             'global' => true,
-            'ancestor_id' => $work->ancestor_id,
             'parent_id' => $work->id,
-            'descendants' => 0,
-            'generation' => ($work->generation + 1),
             'colour' => $faker->hexColor()
         ]);
-        $work->increment('descendants');
             $portfolio = Tag::create([
                 'name' => 'Portfolio',
                 'global' => true,
-                'ancestor_id' => $career->ancestor_id,
                 'parent_id' => $career->id,
-                'descendants' => 0,
-                'generation' => ($career->generation + 1),
                 'colour' => $faker->hexColor()
             ]);
             $skills = Tag::create([
                 'name' => 'Skills',
                 'global' => true,
-                'ancestor_id' => $career->ancestor_id,
                 'parent_id' => $career->id,
-                'descendants' => 0,
-                'generation' => ($career->generation + 1),
                 'colour' => $faker->hexColor()
             ]);
-            $work->increment('descendants');
-            $career->increment('descendants');
 
         // LIFE ##############################################################
 
         $physical = Tag::create([
             'name' => 'Physical',
             'global' => true,
-            'ancestor_id' => $life->ancestor_id,
             'parent_id' => $life->id,
-            'descendants' => 0,
-            'generation' => ($life->generation + 1),
             'colour' => $faker->hexColor()
         ]);
         $social = Tag::create([
             'name' => 'Social',
             'global' => true,
-            'ancestor_id' => $life->ancestor_id,
             'parent_id' => $life->id,
-            'descendants' => 0,
-            'generation' => ($life->generation + 1),
             'colour' => $faker->hexColor()
         ]);
         $self = Tag::create([
             'name' => 'Self',
             'global' => true,
-            'ancestor_id' => $life->ancestor_id,
             'parent_id' => $life->id,
-            'descendants' => 0,
-            'generation' => ($life->generation + 1),
             'colour' => $faker->hexColor()
         ]);
-        $life->increment('descendants');
             $a = Tag::create([
                 'name' => 'A',
                 'global' => true,
-                'ancestor_id' => $self->ancestor_id,
                 'parent_id' => $self->id,
-                'descendants' => 0,
-                'generation' => ($self->generation + 1),
                 'colour' => $faker->hexColor()
             ]);
             $b = Tag::create([
                 'name' => 'B',
                 'global' => true,
-                'ancestor_id' => $self->ancestor_id,
                 'parent_id' => $self->id,
-                'descendants' => 0,
-                'generation' => ($self->generation + 1),
                 'colour' => $faker->hexColor()
             ]);
             $c = Tag::create([
                 'name' => 'C',
                 'global' => true,
-                'ancestor_id' => $self->ancestor_id,
                 'parent_id' => $self->id,
-                'descendants' => 0,
-                'generation' => ($self->generation + 1),
                 'colour' => $faker->hexColor()
             ]);
-            $life->increment('descendants');
-            $self->increment('descendants');
                 $d = Tag::create([
                     'name' => 'D',
                     'global' => true,
-                    'ancestor_id' => $c->ancestor_id,
                     'parent_id' => $c->id,
-                    'descendants' => 0,
-                    'generation' => ($c->generation + 1),
                     'colour' => $faker->hexColor()
                 ]);
-                $life->increment('descendants');
-                $c->increment('descendants');
                     $e = Tag::create([
                         'name' => 'E',
                         'global' => true,
-                        'ancestor_id' => $d->ancestor_id,
                         'parent_id' => $d->id,
-                        'descendants' => 0,
-                        'generation' => ($d->generation + 1),
                         'colour' => $faker->hexColor()
                     ]);
-                    $life->increment('descendants');
-                    $d->increment('descendants');
 
 
         // ACTIVITIES

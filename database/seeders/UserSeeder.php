@@ -55,20 +55,12 @@ class UserSeeder extends Seeder
         $work = Tag::create([
             'name' => 'Work',
             'global' => true,
-            'ancestor_id' => 1,
-            'parent_id' => 1,
-            'descendants' => 0,
-            'generation' => 1,
             'colour' => $faker->hexColor()
         ]);
 
         $life = Tag::create([
             'name' => 'Life',
             'global' => true,
-            'ancestor_id' => 2,
-            'parent_id' => 2,
-            'descendants' => 0,
-            'generation' => 1,
             'colour' => $faker->hexColor()
         ]);
 

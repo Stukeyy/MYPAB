@@ -14,19 +14,7 @@ class DashboardController extends Controller
     
     public function check() {
 
-        $generation = 0;
-        $tag = Tag::find(1);
-        $familytree = 'children';
-
-        // builds with relation for tag - children.children.children...
-        // gets children of each child decended from tag
-        // descendants of each generation from tag
-        while ($generation < $tag->descendants) {
-            $familytree .= '.children';
-            $generation++;
-        }
-
-        $tag = Tag::with($familytree)->find(1);
+        $tag = Tag::find(13);
         return response(new TagResource($tag));
     
     }

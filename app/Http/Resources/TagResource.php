@@ -14,20 +14,13 @@ class TagResource extends JsonResource
      */
     public function toArray($request)
     {
-
-        $children = $this->children;
-        $child = $this->children->first();
-        return $child;
-        if ($child->name === 'Work' || $child->name === 'Life') {
-            $children = $this->children->skip(1);
-        }
         
         return [
             'id' => $this->id,
             'name' => $this->name,
             'global' => $this->global,
             'colour' => $this->colour,
-            'children' => TagResource::collection($children)
+            'children' => TagResource::collection($this->children)
         ];
 
     }

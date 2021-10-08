@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Test
+Route::get('/test', 'App\Http\Controllers\Auth\AuthController@test');
+
 // Login
 Route::post('/login', 'App\Http\Controllers\Auth\AuthController@login');
 Route::post('/register', 'App\Http\Controllers\Auth\AuthController@register');

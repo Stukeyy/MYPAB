@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -22,6 +23,13 @@ class User extends Authenticatable
     protected $fillable = [
         'firstname',
         'lastname',
+        'age',
+        'gender',
+        'location',
+        'level',
+        'institution',
+        'subject',
+        'employed',
         'email',
         'password',
     ];
@@ -45,9 +53,29 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
+
+    /**
+     * Hashes user password.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = Hash::make($value);
+    }
+
+
     public function getFullNameAttribute() {
         return ucFirst($this->firstname) . " " . ucfirst($this->lastname);
+    }
+
+    /**
+     * Get the tags that belong to the user.
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'user_tags');
     }
 
 }

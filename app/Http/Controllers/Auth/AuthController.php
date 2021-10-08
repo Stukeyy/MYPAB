@@ -6,12 +6,23 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use App\Models\Tag;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+
+    public function test() {
+
+        $tag = Tag::find(1);
+        $tag->children;
+        return response($tag);
+
+    }
+
+
     public function user(Request $request)
     {
         return response([
@@ -62,7 +73,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
-        $register = (object) $request->validate([
+        $register = $request->validate([
             "firstname" => "required|string",
             "lastname" => "required|string",
             "age" => "required|integer|numeric",
@@ -77,7 +88,9 @@ class AuthController extends Controller
             "company" => "requiredIf:employed,true"
         ]);
 
-        return response($request->all());
+        $user = User::create($register);
+
+        return response($user);
 
         // $user = User::create([
         //     'name' => $register['name'],

@@ -17,8 +17,13 @@ class CreateTagsTable extends Migration
             $table->id();
             $table->string('name');
             $table->boolean('global');
+            // When ancestor or parent are deleted so are children - whole way down family tree
+            $table->foreignId('ancestor_id')->references('id')->on('tags')->onDelete('cascade');
             $table->foreignId('parent_id')->references('id')->on('tags')->onDelete('cascade');
-            // When parent is deleted so is child - whole way down family tree
+            // Amount of generations tag is a parent of
+            $table->integer('descendants')->nullable();
+            // Level in family tree from ancestor
+            $table->integer('generation');
             $table->string('colour');
             $table->timestamps();
         });

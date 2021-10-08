@@ -14,22 +14,6 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
 
-    public function test() {
-
-        $tag = Tag::find(1);
-        $tag->children;
-        return response($tag);
-
-    }
-
-
-    public function user(Request $request)
-    {
-        return response([
-            'user' => $request->user()
-        ]);
-    }
-
     public function login(Request $request)
     {
 
@@ -91,12 +75,6 @@ class AuthController extends Controller
         $user = User::create($register);
 
         return response($user);
-
-        // $user = User::create([
-        //     'name' => $register['name'],
-        //     'email' => $register['email'],
-        //     'password' => Hash::make($register['password'])
-        // ]);
 
         // $token = $user->createToken('token')->plainTextToken;
 

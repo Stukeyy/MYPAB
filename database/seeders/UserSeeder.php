@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Hash;
 
 use Spatie\Permission\Models\Role;
@@ -48,6 +49,28 @@ class UserSeeder extends Seeder
             "email_verified_at" => Carbon::now(),
             "password" => Hash::make("password")
         ])->assignRole($admin);
+
+        // Base Tags
+
+        $work = Tag::create([
+            'name' => 'Work',
+            'global' => true,
+            'ancestor_id' => 1,
+            'parent_id' => 1,
+            'descendants' => 0,
+            'generation' => 1,
+            'colour' => $faker->hexColor()
+        ]);
+
+        $life = Tag::create([
+            'name' => 'Life',
+            'global' => true,
+            'ancestor_id' => 2,
+            'parent_id' => 2,
+            'descendants' => 0,
+            'generation' => 1,
+            'colour' => $faker->hexColor()
+        ]);
 
     }
 }

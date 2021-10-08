@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Test
-Route::get('/test', 'App\Http\Controllers\Auth\AuthController@test');
+Route::get('/check', 'App\Http\Controllers\DashboardController@check');
 
 // Login
 Route::post('/login', 'App\Http\Controllers\Auth\AuthController@login');
@@ -24,7 +24,7 @@ Route::post('/register', 'App\Http\Controllers\Auth\AuthController@register');
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // Get User
-    Route::get('/user', 'App\Http\Controllers\Auth\AuthController@user');
+    Route::get('/user', 'App\Http\Controllers\DashboardController@user');
     Route::get('/authUser', 'App\Http\Controllers\Auth\AuthController@authUser');
 
 });

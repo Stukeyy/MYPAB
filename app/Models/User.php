@@ -42,6 +42,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'pivot'
     ];
 
     /**
@@ -75,7 +76,15 @@ class User extends Authenticatable
      */
     public function tags()
     {
-        return $this->belongsToMany(Tag::class, 'user_tags');
+        return $this->belongsToMany(Tag::class, 'user_tags')->withTimestamps();
+    }
+
+    /**
+     * Get the activities that belong to the user.
+     */
+    public function activities()
+    {
+        return $this->belongsToMany(Activity::class, 'user_activities')->withTimestamps();
     }
 
 }

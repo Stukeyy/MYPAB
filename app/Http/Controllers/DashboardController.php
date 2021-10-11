@@ -12,9 +12,8 @@ use App\Http\Resources\TagResource;
 class DashboardController extends Controller
 {
     
-    public function check() {
+    public function check(Tag $tag) {
 
-        $tag = Tag::find(13);
         return response(new TagResource($tag));
     
     }

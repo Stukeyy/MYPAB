@@ -57,7 +57,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
-        $register = $request->validate([
+        $validRegister = $request->validate([
             "firstname" => "required|string",
             "lastname" => "required|string",
             "age" => "required|integer|numeric",
@@ -67,23 +67,139 @@ class AuthController extends Controller
             "password" => "required|string|min:6",
             "level" => "required|string",
             "institution" => "required|string",
+            "modules" => "nullable",
             "subject" => "required|string",
             "employed" => "required|boolean",
-            "company" => "requiredIf:employed,true"
+            "company" => "requiredIf:employed,true",
+            "projects" => "nullable",
+            "physical" => "nullable",
+            "social" => "nullable",
+        ]);
+        $register = (object) $request->all();
+
+        // Create User
+        $user = User::create($validRegister);
+
+        // Create Tags based on Registration Sections
+        $faker = \Faker\Factory::create();
+        $education = Tag::where('name', 'Education')->first();
+        $career = Tag::where('name', 'Career')->first();
+        $physical = Tag::where('name', 'Physical')->first();
+        $social = Tag::where('name', 'Social')->first();
+        
+        // University and Modules
+        $institution = Tag::create([
+            'name' => $register->institution,
+            'global' => false,
+            'parent_id' => $education->id,
+            'colour' => $faker->hexColor()
+        ]);
+        $user->tags()->attach([$institution->id]);
+        foreach ($request->modules as $module) {
+            $module = Tag::create([
+                'name' => $module,
+                'global' => false,
+                'parent_id' => $institution->id,
+                'colour' => $faker->hexColor()
+            ]);
+            $user->tags()->attach([$module->id]);
+        }
+
+        // Company and Projects
+        if ($register->employed) {
+            $company = Tag::create([
+                'name' => $register->company,
+                'global' => false,
+                'parent_id' => $career->id,
+                'colour' => $faker->hexColor()
+            ]);
+            $user->tags()->attach([$company->id]);
+            foreach ($request->projects as $project) {
+                $project = Tag::create([
+                    'name' => $project,
+                    'global' => false,
+                    'parent_id' => $company->id,
+                    'colour' => $faker->hexColor()
+                ]);
+                $user->tags()->attach([$module->id]);
+            }
+        }
+
+        // Physical Clubs
+        foreach ($request->physical as $club) {
+            $module = Tag::create([
+                'name' => $club,
+                'global' => false,
+                'parent_id' => $physical->id,
+                'colour' => $faker->hexColor()
+            ]);
+            $user->tags()->attach([$module->id]);
+        }
+
+        // Social Clubs
+        foreach ($request->social as $club) {
+            $module = Tag::create([
+                'name' => $club,
+                'global' => false,
+                'parent_id' => $social->id,
+                'colour' => $faker->hexColor()
+            ]);
+            $user->tags()->attach([$module->id]);
+        }
+
+        // Token
+        $token = $user->createToken('token')->plainTextToken;
+
+        return response([
+            'user' => $user,
+            'token' => $token
         ]);
 
-        $user = User::create($register);
-
-        return response($user);
-
-        // $token = $user->createToken('token')->plainTextToken;
-
-        // return response([
-        //     'user' => $user,
-        //     'token' => $token
-        // ]);
-
     }
+
+    // public function createWorkTags(Array $grandparents, Array $register) {   
+    //
+    //     $workTags = [
+    //         [
+    //             "parent" => "Education",
+    //             "name" => $register['institution'],
+    //             "children" => "modules"
+    //         ],
+    //         [
+    //             "parent" => "Career",
+    //             "name" => $register['company'],
+    //             "children" => "projects"
+    //         ]
+    //     ];
+    //     $this->createWorkTags($workTags, $register);
+
+    //     $faker = \Faker\Factory::create();
+
+    //     foreach ($grandparents as $grandparent) {
+    //         $grandparentTag = Tag::where('name', $grandparent["parent"])->first();
+    //         $parentTagChildren = $register[$grandparent["children"]];
+    //         $parentTagName = $grandparent["name"];
+    //         if ($parentTagName === '') {
+    //             continue;
+    //         }
+
+    //         $parentTag = Tag::create([
+    //             'name' => $parentTagName,
+    //             'global' => false,
+    //             'parent_id' => $grandparentTag->id,
+    //             'colour' => $faker->hexColor()
+    //         ]);
+    //         foreach ($parentTagChildren as $child) {
+    //             $childTag = Tag::create([
+    //                 'name' => $child,
+    //                 'global' => false,
+    //                 'parent_id' => $parentTag->id,
+    //                 'colour' => $faker->hexColor()
+    //             ]); 
+    //         }
+    //     }
+
+    // }
 
     public function logout(Request $request)
     {

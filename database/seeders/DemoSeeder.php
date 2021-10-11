@@ -76,36 +76,6 @@ class DemoSeeder extends Seeder
             'parent_id' => $life->id,
             'colour' => $faker->hexColor()
         ]);
-            $a = Tag::create([
-                'name' => 'A',
-                'global' => true,
-                'parent_id' => $self->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $b = Tag::create([
-                'name' => 'B',
-                'global' => true,
-                'parent_id' => $self->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $c = Tag::create([
-                'name' => 'C',
-                'global' => true,
-                'parent_id' => $self->id,
-                'colour' => $faker->hexColor()
-            ]);
-                $d = Tag::create([
-                    'name' => 'D',
-                    'global' => true,
-                    'parent_id' => $c->id,
-                    'colour' => $faker->hexColor()
-                ]);
-                    $e = Tag::create([
-                        'name' => 'E',
-                        'global' => true,
-                        'parent_id' => $d->id,
-                        'colour' => $faker->hexColor()
-                    ]);
 
 
         // ACTIVITIES
@@ -139,29 +109,6 @@ class DemoSeeder extends Seeder
             'global' => true,
             'tag_id' => $skills->id
         ]);
-
-
-        // USER
-
-        $x = Activity::create([
-            'name' => 'X',
-            'global' => true,
-            'tag_id' => $a->id
-        ]);
-        $y = Activity::create([
-            'name' => 'Y',
-            'global' => true,
-            'tag_id' => $b->id
-        ]);
-        $z = Activity::create([
-            'name' => 'Z',
-            'global' => true,
-            'tag_id' => $c->id
-        ]);
-
-        $user = User::find(1);
-        $user->tags()->attach([$a->id, $b->id, $c->id, $d->id, $e->id]);
-        $user->activities()->attach([$x->id, $y->id, $z->id]);
 
 
     }

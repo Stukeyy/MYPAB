@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Test
-Route::get('/check', 'App\Http\Controllers\DashboardController@check');
+Route::get('/check/{tag}', 'App\Http\Controllers\DashboardController@check');
 
 // Login
 Route::post('/login', 'App\Http\Controllers\Auth\AuthController@login');

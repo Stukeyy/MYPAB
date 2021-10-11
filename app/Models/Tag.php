@@ -28,14 +28,6 @@ class Tag extends Model
     protected $hidden = ['pivot'];
 
     /**
-     * Get the ancestor of the tag (Work or Life).
-     */
-    public function ancestor()
-    {
-        return $this->hasOne(Tag::class, 'id', 'ancestor_id');
-    }
-
-    /**
      * Get the parent of the tag.
      */
     public function parent()

@@ -77,8 +77,8 @@ class AuthController extends Controller
         ]);
         $register = (object) $request->all();
 
-        // Create User
-        $user = User::create($validRegister);
+        // Create User & Role
+        $user = User::create($validRegister)->assignRole('student');
 
         // Create Tags based on Registration Sections
         $faker = \Faker\Factory::create();
@@ -151,55 +151,10 @@ class AuthController extends Controller
         $token = $user->createToken('token')->plainTextToken;
 
         return response([
-            'user' => $user,
             'token' => $token
         ]);
 
     }
-
-    // public function createWorkTags(Array $grandparents, Array $register) {   
-    //
-    //     $workTags = [
-    //         [
-    //             "parent" => "Education",
-    //             "name" => $register['institution'],
-    //             "children" => "modules"
-    //         ],
-    //         [
-    //             "parent" => "Career",
-    //             "name" => $register['company'],
-    //             "children" => "projects"
-    //         ]
-    //     ];
-    //     $this->createWorkTags($workTags, $register);
-
-    //     $faker = \Faker\Factory::create();
-
-    //     foreach ($grandparents as $grandparent) {
-    //         $grandparentTag = Tag::where('name', $grandparent["parent"])->first();
-    //         $parentTagChildren = $register[$grandparent["children"]];
-    //         $parentTagName = $grandparent["name"];
-    //         if ($parentTagName === '') {
-    //             continue;
-    //         }
-
-    //         $parentTag = Tag::create([
-    //             'name' => $parentTagName,
-    //             'global' => false,
-    //             'parent_id' => $grandparentTag->id,
-    //             'colour' => $faker->hexColor()
-    //         ]);
-    //         foreach ($parentTagChildren as $child) {
-    //             $childTag = Tag::create([
-    //                 'name' => $child,
-    //                 'global' => false,
-    //                 'parent_id' => $parentTag->id,
-    //                 'colour' => $faker->hexColor()
-    //             ]); 
-    //         }
-    //     }
-
-    // }
 
     public function logout(Request $request)
     {

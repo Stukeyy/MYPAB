@@ -19,6 +19,7 @@ class TagResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'global' => $this->global,
+            'parent_id' => $this->parent_id,
             'colour' => $this->colour,
             'children' => TagResource::collection($this->children)
         ];

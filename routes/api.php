@@ -27,6 +27,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', 'App\Http\Controllers\DashboardController@user');
     Route::get('/authUser', 'App\Http\Controllers\Auth\AuthController@authUser');
 
+    // Tags
+    Route::apiResource('/tags', 'App\Http\Controllers\TagController');
+
 });
 
 // Logout

@@ -47,8 +47,9 @@ class UserSeeder extends Seeder
             "employed" => false,
             "email" => "stephenr.ross@yahoo.com",
             "email_verified_at" => Carbon::now(),
-            "password" => Hash::make("password")
+            "password" => "password"
         ])->assignRole($admin);
+        // Password hashed in User Model accessor
 
         // Base Tags
 

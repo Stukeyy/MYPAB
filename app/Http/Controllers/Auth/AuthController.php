@@ -10,6 +10,7 @@ use App\Models\Tag;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Log;
 
 class AuthController extends Controller
 {

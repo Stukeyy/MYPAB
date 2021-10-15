@@ -8,4 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class Commitment extends Model
 {
     use HasFactory;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string[]
+     */
+    protected $fillable = [
+        'name',
+        'tag_id',
+        'user_id',
+        'occurance',
+        'day',
+        'start_time',
+        'end_time',
+        'start_date',
+        'end_date'
+    ];
 }

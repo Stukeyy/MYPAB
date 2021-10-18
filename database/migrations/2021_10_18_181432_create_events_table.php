@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCommitmentsTable extends Migration
+class CreateEventsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,17 @@ class CreateCommitmentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('commitments', function (Blueprint $table) {
+        Schema::create('events', function (Blueprint $table) {
             $table->id();
             $table->string("name");
             $table->foreignId("tag_id")->constrained()->onCascade("delete");
-            $table->foreignId("user_id")->constrained()->onCascade("delete");
-            $table->string("occurance");
-            $table->string("day")->nullable();
+            $table->foreignId("commitment_id")->constrained()->onCascade("delete");
             $table->string("start_time");
             $table->string("end_time");
             $table->string("start_date");
             $table->string("end_date");
+            $table->longText("notes")->nullable();
+            // $table->foreignId("checklist_id")->constrained();
             $table->timestamps();
         });
     }
@@ -35,6 +35,6 @@ class CreateCommitmentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('commitments');
+        Schema::dropIfExists('events');
     }
 }

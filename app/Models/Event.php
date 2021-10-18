@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Commitment extends Model
+class Event extends Model
 {
     use HasFactory;
 
@@ -17,13 +17,13 @@ class Commitment extends Model
     protected $fillable = [
         'name',
         'tag_id',
-        'user_id',
-        'occurance',
-        'day',
+        'commitment_id',
         'start_time',
         'end_time',
         'start_date',
-        'end_date'
+        'end_date',
+        'notes',
+        // checklist_idß
     ];
-    
+
 }

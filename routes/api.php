@@ -14,6 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Api Resource
+// GET	/photos	index
+// GET	/photos/create	create
+// POST	/photos	store
+// GET	/photos/{photo}	show
+// GET	/photos/{photo}/edit edit
+// PUT/PATCH	/photos/{photo}	update
+// DELETE	/photos/{photo}	destroy
+
 // Test
 Route::get('/check/{tag}', 'App\Http\Controllers\DashboardController@check');
 
@@ -32,6 +41,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Commitments
     Route::apiResource('/commitments', 'App\Http\Controllers\CommitmentController');
     // Events
+    // Called after Full Calendar drag and drop - only updates time - separate to update method and needs to be called before apiResource
+    Route::put('/events/{event}/time', 'App\Http\Controllers\EventController@updateTime');
     Route::apiResource('/events', 'App\Http\Controllers\EventController');
 
 });

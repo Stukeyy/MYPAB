@@ -25,5 +25,13 @@ class Commitment extends Model
         'start_date',
         'end_date'
     ];
+
+    /**
+     * Get the events related to the commitment.
+     */
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
     
 }

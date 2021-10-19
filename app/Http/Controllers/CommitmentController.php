@@ -13,14 +13,6 @@ use Carbon\CarbonPeriod;
 
 class CommitmentController extends Controller
 {
-    
-    // GET	/photos	index
-    // GET	/photos/create	create
-    // POST	/photos	store
-    // GET	/photos/{photo}	show
-    // GET	/photos/{photo}/edit edit
-    // PUT/PATCH	/photos/{photo}	update
-    // DELETE	/photos/{photo}	destroy
 
     /**
      * Display a listing of the resource.
@@ -79,6 +71,8 @@ class CommitmentController extends Controller
             $validCommitment["commitment_id"] = $newCommitment->id;
             $validCommitment["start_date"] = $event;
             $validCommitment["end_date"] = $event;
+            // isolated is set to true if event is individually updated - no longer globally updated by commitment
+            $validCommitment["isolated"] = false;
             $event = Event::create($validCommitment);
         }
 
@@ -151,7 +145,8 @@ class CommitmentController extends Controller
      */
     public function update(Request $request, Commitment $commitment)
     {
-        //
+        // When updating commitment meta data - update all assoicated events
+        // If the commitment time is being updated - only update events that arent isolated
     }
 
     /**

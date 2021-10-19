@@ -22,6 +22,7 @@ class Event extends Model
         'end_time',
         'start_date',
         'end_date',
+        'isolated',
         'notes',
         // checklist_id
     ];

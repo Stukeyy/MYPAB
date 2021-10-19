@@ -53,6 +53,15 @@ class Tag extends Model
     }
 
     /**
+     * Get the events related to the tag.
+     */
+    public function events()
+    {
+        // Need to be limited to individual user before calling
+        return $this->hasMany(Event::class);
+    }
+
+    /**
      * Get the activities related to the tag.
      */
     public function activities()

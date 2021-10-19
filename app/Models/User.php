@@ -79,6 +79,15 @@ class User extends Authenticatable
         return $this->belongsToMany(Tag::class, 'user_tags')->withTimestamps();
     }
 
+
+    /**
+     * Get all of the events for the user made through their commitments.
+     */
+    public function events()
+    {
+        return $this->hasManyThrough(Event::class, Commitment::class);
+    }
+
     /**
      * Get the activities that belong to the user.
      */

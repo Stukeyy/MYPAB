@@ -23,7 +23,16 @@ class Event extends Model
         'start_date',
         'end_date',
         'notes',
-        // checklist_idß
+        // checklist_id
     ];
+
+
+    /**
+     * Get the tag that the event belongs to.
+     */
+    public function tag()
+    {
+        return $this->belongsTo(Tag::class);
+    }
 
 }

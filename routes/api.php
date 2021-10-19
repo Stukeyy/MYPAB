@@ -31,6 +31,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('/tags', 'App\Http\Controllers\TagController');
     // Commitments
     Route::apiResource('/commitments', 'App\Http\Controllers\CommitmentController');
+    // Events
+    Route::apiResource('/events', 'App\Http\Controllers\EventController');
 
 });
 

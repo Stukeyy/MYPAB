@@ -12,15 +12,6 @@ use App\Http\Resources\TagResource;
 class TagController extends Controller
 {
 
-
-    // GET	/photos	index
-    // GET	/photos/create	create
-    // POST	/photos	store
-    // GET	/photos/{photo}	show
-    // GET	/photos/{photo}/edit edit
-    // PUT/PATCH	/photos/{photo}	update
-    // DELETE	/photos/{photo}	destroy
-
     /**
      * Display a listing of the resource.
      *
@@ -28,7 +19,7 @@ class TagController extends Controller
      */
     public function index()
     {   
-        $globalTags = Tag::where('global', true)->get();
+        $globalTags = Tag::where('global', true)->orderBy('id', 'ASC')->get();
         $userTags = Auth::user()->tags;
         $mergedTags = $globalTags->merge($userTags);
 
@@ -52,19 +43,40 @@ class TagController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Tag $tag)
     {
         //
     }
 
     /**
-     * Update the specified resource in storage.
+     * This method is called via a separate route which is called when a
+     * a tags colour is updated via the colour picker on the Tag Table
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateColour(Request $request, Tag $tag)
+    {   
+        $newColour = (object) $request->validate([
+            "colour" => "required"
+        ]);
+
+        $tag->colour = $newColour->colour;
+        $tag->save();
+
+        return response("Tag Updated Successfully", 200);
+    }
+
+    /**
+     * This method is called in apiResource which is called in Tag Update Form
+     * Tag is clicked on first and taken to separate form to update all Tag data not only colour
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, Tag $tag)
     {
         //
     }
@@ -75,7 +87,7 @@ class TagController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Tag $tag)
     {
         //
     }

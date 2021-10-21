@@ -77,7 +77,6 @@ class DemoSeeder extends Seeder
             'colour' => $faker->hexColor()
         ]);
 
-
         // ACTIVITIES
 
         $activity = Activity::create([

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Auth;
 use Carbon\Carbon;
 use App\Models\Event;
+use App\Models\Check;
+use App\Models\Checklist;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\EventResource;
@@ -81,6 +83,7 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
+
         // Updates whole Event Model not just time
         // Can also add Notes and Checklist here
         $validEvent = $request->validate([
@@ -88,10 +91,43 @@ class EventController extends Controller
             "tag_id" => "required|integer|numeric",
             "start_time" => "required|string",
             "end_time" => "required|string",
-            "start_date" => "required|string"
+            "start_date" => "required|string",
+            "end_date" => "required|string",
+            "notes" => "nullable",
+            "checklist" => "nullable"
         ]);
+        $updatedEvent = (object) $request->all();
 
-        $event->update($validEvent);
+        // Time formated in frontend to match time stored in backend - toLocaleDateString()
+        $differentStartTime = ($updatedEvent->start_time !== $event->start_time);
+        $differentEndTime = ($updatedEvent->end_time !== $event->end_time);
+        // Start and End Date are same value - can only edit start date in update form and end date is set as same value
+        $differentDate = ($updatedEvent->start_date !== $event->start_date);
+
+        if($differentStartTime || $differentEndTime || $differentDate) {
+            $event->update($validEvent);
+            // If the updated event has a different time or date that the original values for the event - set isolated to true so it is not globally updatable by Commitment update
+            $event->isolated = true;
+            $event->save();
+        } else {
+            $event->update($validEvent);
+        }
+
+        // If a checklist has been attached to events - then create checklist and add checks - assign checklist ID to event and checks for relationships
+        if($updatedEvent->checklist[0]["value"] !== '') {
+            $checklist = Checklist::create();
+            $event->checklist_id = $checklist->id;
+            $event->save();
+            foreach($updatedEvent->checklist as $check) {
+                $check = Check::create([
+                    "checklist_id" => $checklist->id,
+                    "check" => $check["value"],
+                    "completed" => false
+                ]);
+            }
+        }
+
+        return response("Event Updated Successfully", 200);
     }
 
     /**

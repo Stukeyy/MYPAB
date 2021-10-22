@@ -24,7 +24,7 @@ class CreateEventsTable extends Migration
             $table->string("end_date");
             $table->boolean("isolated");
             $table->longText("notes")->nullable();
-            // $table->foreignId("checklist_id")->constrained();
+            $table->foreignId("checklist_id")->nullable()->constrained();
             $table->timestamps();
         });
     }

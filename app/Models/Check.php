@@ -15,9 +15,16 @@ class Check extends Model
      * @var string[]
      */
     protected $fillable = [
-        'checklist_id',
         'check',
         'completed'
     ];
+
+    /**
+     * Get the event that the check belongs to.
+     */
+    public function event()
+    {
+        return $this->belongsToMany(Event::class);
+    }
 
 }

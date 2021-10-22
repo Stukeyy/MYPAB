@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 // DELETE	/photos/{photo}	destroy
 
 // Test
-Route::get('/check/{tag}', 'App\Http\Controllers\DashboardController@check');
+Route::get('/check', 'App\Http\Controllers\DashboardController@check');
 
 // Login
 Route::post('/login', 'App\Http\Controllers\Auth\AuthController@login');
@@ -46,6 +46,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Called after Full Calendar drag and drop - only updates time - separate to update method and needs to be called before apiResource
     Route::put('/events/{event}/time', 'App\Http\Controllers\EventController@updateTime');
     Route::apiResource('/events', 'App\Http\Controllers\EventController');
+    // Checks
+    Route::apiResource('/checks', 'App\Http\Controllers\CheckController');
 
 });
 

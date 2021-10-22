@@ -42,8 +42,13 @@ class EventController extends Controller
      * @param  \App\Models\Event  $event
      * @return \Illuminate\Http\Response
      */
-    public function show(Event $event)
-    {
+    public function show(Request $request, Event $event)
+    {   
+        // type sent from frontend in order to return the correty resource type
+        $type = $request->validate([
+            "type" => "required|string"
+        ]);
+
         return response(new EventResource($event), 200);
     }
 
@@ -113,18 +118,13 @@ class EventController extends Controller
             $event->update($validEvent);
         }
 
-        // If a checklist has been attached to events - then create checklist and add checks - assign checklist ID to event and checks for relationships
-        if($updatedEvent->checklist[0]["value"] !== '') {
-            $checklist = Checklist::create();
-            $event->checklist_id = $checklist->id;
-            $event->save();
-            foreach($updatedEvent->checklist as $check) {
-                $check = Check::create([
-                    "checklist_id" => $checklist->id,
-                    "check" => $check["value"],
-                    "completed" => false
-                ]);
-            }
+        $event->checks()->detach();
+        foreach($updatedEvent->checklist as $check) {
+            $check = Check::create([
+                "check" => $check["value"],
+                "completed" => false
+            ]);
+            $event->checks()->attach($check->id);
         }
 
         return response("Event Updated Successfully", 200);

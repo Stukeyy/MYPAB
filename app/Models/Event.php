@@ -37,26 +37,11 @@ class Event extends Model
     }
 
     /**
-     * Get the Checklist that belongs to the Event.
-     */
-    public function checklist()
-    {
-        return $this->hasOne(Checklist::class, 'id', 'checklist_id');
-    }
-
-    /**
-     * Get all of the checks for the event via its checklist.
+     * Get the checks that belong to the Event.
      */
     public function checks()
     {
-        return $this->hasManyThrough(
-            Check::class,
-            Checklist::class,
-            'id', // Foreign key on the checklist table...
-            'checklist_id', // Foreign key on the checks table...
-            'checklist_id', // Local key on the event table...
-            'id' // Local key on the checklist table...
-        );
+        return $this->belongsToMany(Check::class)->orderBy('id');
     }
 
 }

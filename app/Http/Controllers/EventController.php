@@ -8,6 +8,7 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\EventResource;
+use App\Http\Resources\TimetableResource;
 
 class EventController extends Controller
 {
@@ -18,7 +19,8 @@ class EventController extends Controller
      */
     public function index()
     {   
-        return response(EventResource::collection(Auth::user()->events), 200);
+        // Returned to Full Calendar Plugin - needs to be formatted differently from Event Resource
+        return response(TimetableResource::collection(Auth::user()->events), 200);
     }
 
     /**
@@ -29,7 +31,7 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // 
     }
 
     /**
@@ -40,7 +42,7 @@ class EventController extends Controller
      */
     public function show(Event $event)
     {
-        //
+        return response(new EventResource($event), 200);
     }
 
     /**
@@ -81,6 +83,15 @@ class EventController extends Controller
     {
         // Updates whole Event Model not just time
         // Can also add Notes and Checklist here
+        $validEvent = $request->validate([
+            "name" => "required|string",
+            "tag_id" => "required|integer|numeric",
+            "start_time" => "required|string",
+            "end_time" => "required|string",
+            "start_date" => "required|string"
+        ]);
+
+        $event->update($validEvent);
     }
 
     /**

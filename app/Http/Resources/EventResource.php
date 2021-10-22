@@ -16,18 +16,22 @@ class EventResource extends JsonResource
     public function toArray($request)
     {   
 
-        // Event formt to be disaplyed by FullCalendar plugin
-        $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
-        $end_date = Carbon::createFromFormat('d/m/Y H:i', ($this->end_date . ' ' . $this->end_time))->format('Y-m-d H:i');
+        // Date formated for element ui date picker
+        $start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
 
         return [
             'id' => $this->id,
-            'title' => $this->name,
-            'start' => $start_date,
-            'end' => $end_date,
-            'eventDisplay' => 'block',
-            'backgroundColor' => $this->tag->colour,
-            'borderColor' => $this->tag->colour
+            'name' => $this->name,
+            'tag_id' => $this->tag->id,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
+            'start_date' => $start_date,
+            'notes' => ($this->notes) ? $this->notes : '',
+            'checklist' => [[
+                'key' => 0,
+                'value' => '',
+                'error' => false
+            ]]
         ];
 
     }

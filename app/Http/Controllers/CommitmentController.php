@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
+use App\Http\Resources\CommitmentResource;
+
 class CommitmentController extends Controller
 {
 
@@ -133,7 +135,7 @@ class CommitmentController extends Controller
      */
     public function show(Commitment $commitment)
     {
-        //
+        return response(new CommitmentResource($commitment), 200);
     }
 
     /**

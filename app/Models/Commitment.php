@@ -33,5 +33,13 @@ class Commitment extends Model
     {
         return $this->hasMany(Event::class);
     }
+
+    /**
+     * Get the tag related to the commitment.
+     */
+    public function tag()
+    {
+        return $this->hasOne(Tag::class, 'id', 'tag_id');
+    }
     
 }

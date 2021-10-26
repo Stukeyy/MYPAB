@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
 use App\Http\Resources\CommitmentResource;
+use App\Http\Resources\CommitmentCollection;
 
 class CommitmentController extends Controller
 {
@@ -23,7 +24,7 @@ class CommitmentController extends Controller
      */
     public function index()
     {
-        //
+        return response(new CommitmentCollection(Commitment::paginate(1)));
     }
 
     /**

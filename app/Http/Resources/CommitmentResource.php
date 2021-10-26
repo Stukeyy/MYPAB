@@ -16,7 +16,15 @@ class CommitmentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'tag' => $this->tag->name,
+            'tag_colour' => $this->tag->colour,
+            'occurance' => $this->occurance,
+            'day' => $this->day,
+            'start_time' => $this->start_time,
+            'end_time' => $this->end_time,
+            'start_date' => $this->start_date,
+            'end_date' => $this->end_date
         ];
     }
 }

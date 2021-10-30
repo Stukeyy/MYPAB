@@ -27,6 +27,15 @@ class Event extends Model
         'checklist_id',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'pivot'
+    ];
+
 
     /**
      * Get the tag that the event belongs to.

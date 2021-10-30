@@ -187,6 +187,7 @@ class CommitmentController extends Controller
         // delete all previous events and create new ones
         if ($differentStartDate || $differentEndDate || $differentOccurance || $differentDay) {
             // $commitment->delete(); Cascade delete not working?
+            // BUG HERE
             $events = $commitment->events;
             foreach ($events as $event) {
                 $event->delete();

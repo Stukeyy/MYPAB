@@ -62,15 +62,13 @@ class CommitmentController extends Controller
     */
     public function createEvents(Array $validCommitment) {
 
-        $commitment =  Commitment::find($validCommitment['id']);
-
         // Commitment range
-        $start_date = Carbon::createFromFormat('d/m/Y', $commitment->start_date);
-        $end_date = Carbon::createFromFormat('d/m/Y', $commitment->end_date);
+        $start_date = Carbon::createFromFormat('d/m/Y', $validCommitment['start_date']);
+        $end_date = Carbon::createFromFormat('d/m/Y', $validCommitment['end_date']);
         $period = CarbonPeriod::create($start_date, $end_date);
 
         // If the commitment occurs daily add every day in the commitment range to the events array
-        if ($commitment->occurance === 'daily') {
+        if ($validCommitment['occurance'] === 'daily') {
             $events = [];
             foreach ($period as $date) {
                 $events[] = $date->format('d/m/Y');
@@ -79,13 +77,18 @@ class CommitmentController extends Controller
         // If the commitment doesnt occur daily set the start date to the recurring day set after the start of the commitment range and get each recurring instance of commitment based on frequency
         // e.g. set to first wednesday after 18/10/2021 - based on commitment day and commitment start and then get recurring instance of selected day and frequency
         else {
-            $start_date = $this->getStartDate($commitment->day, $period);
-            $events = $this->getEventDates($commitment->day, $commitment->occurance, $start_date, $commitment->end_date);
+            $start_date = $this->getStartDate($validCommitment['day'], $period);
+            $events = $this->getEventDates($validCommitment['day'], $validCommitment['occurance'], $start_date, $validCommitment['end_date']);
         }
+
+        // Need to get commitment to attach new events to through many to many
+        // Careful - when method running during update commitment - data is not updated yet
+        // Must use request validCommitment values as these will contain the updated data
+        $commitment = Commitment::find($validCommitment['id']);
 
         foreach($events as $event) {
             // Update event data to reflect single instance of commitment with id and new individual dates
-            $validCommitment["commitment_id"] = $commitment->id;
+            $validCommitment["commitment_id"] = $validCommitment['id'];
             $validCommitment["start_date"] = $event;
             $validCommitment["end_date"] = $event;
             // isolated is set to true if event is individually updated - no longer globally updated by commitment
@@ -187,12 +190,13 @@ class CommitmentController extends Controller
         // delete all previous events and create new ones
         if ($differentStartDate || $differentEndDate || $differentOccurance || $differentDay) {
             // $commitment->delete(); Cascade delete not working?
-            // BUG HERE
             $events = $commitment->events;
             foreach ($events as $event) {
                 $event->delete();
             }
             $commitment->events()->detach();
+            // Be aware commitment is not yet updated - need to use the updated request values instead,
+            // otherwise the events will be created using the old occurance for the commitment
             $this->createEvents($validCommitment);
         }
         else {
@@ -205,10 +209,12 @@ class CommitmentController extends Controller
                     $event->save();
                 } else {
                     // if the event is the same as the commitment and not isolated - then update with new details
-                    $event->update($validCommitment);
-                    $event->end_date = $event->start_date;
+                    // except for previously calculated dates via commitment occurance and dates which has remained the same
+                    $event->name = $validCommitment["name"];
+                    $event->tag_id = $validCommitment["tag_id"];
+                    $event->start_time = $validCommitment["start_time"];
+                    $event->end_time = $validCommitment["end_time"];
                     $event->save();
-                    // commitment events only occur across one day so reset end_date to start_date
                 }
             }
 

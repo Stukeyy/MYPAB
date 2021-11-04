@@ -34,7 +34,19 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validTag = $request->validate([
+            "name" => "required",
+            "parent_id" => "required|integer|numeric",
+            "colour" => "required"
+        ]);
+        // Should users be able to set their tags to globally available for other users?
+        $validTag["global"] = false;
+
+        $tag = Tag::create($validTag);
+        Auth::user()->tags()->attach($tag->id);
+
+        return response("Tag Added Successfully", 200);
+
     }
 
     /**
@@ -45,7 +57,7 @@ class TagController extends Controller
      */
     public function show(Tag $tag)
     {
-        //
+        return response(new TagResource($tag));
     }
 
     /**
@@ -78,7 +90,16 @@ class TagController extends Controller
      */
     public function update(Request $request, Tag $tag)
     {
-        //
+        $validTag = $request->validate([
+            "name" => "required",
+            "parent_id" => "required|integer|numeric",
+            "colour" => "required"
+        ]);
+        // Should users be able to set their tags to globally available for other users?
+
+        $tag->update($validTag);
+        return response("Tag Updated Successfully", 200);
+
     }
 
     /**

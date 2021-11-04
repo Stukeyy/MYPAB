@@ -56,8 +56,11 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Tag $tag)
-    {
-        return response(new TagResource($tag));
+    {   
+        $tagFamily = [];
+        $tagFamily['ancestors'] = $tag->ancestors($tag);
+        $tagFamily['descendants'] = new TagResource($tag);
+        return response($tagFamily);
     }
 
     /**

@@ -32,7 +32,32 @@ class Tag extends Model
      */
     public function parent()
     {
-        return $this->hasOne(Tag::class, 'id', 'parent_id');
+        return $this->belongsTo(Tag::class);
+    }
+
+    /**
+     * Get the ancestors of the tag.
+     */
+    public function ancestors(Tag $tag)
+    {       
+        $ancestors = [];
+
+        $hasAncestors = true;
+        while ($hasAncestors) {
+            // If the tag has a parent ID - push to ancestors array and set as new current tag
+            // This will loop through Tag parents until Work or Life - shown as ancestors in view tag page
+            if ($tag->parent_id) {
+                $parent = Tag::find($tag->parent_id);
+                array_push($ancestors, $parent);
+                $tag = $parent;
+            }
+            else {
+                $hasAncestors = false;
+            }
+        }
+        
+        return array_reverse($ancestors);
+
     }
 
     /**

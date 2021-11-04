@@ -17,6 +17,7 @@ class Event extends Model
     protected $fillable = [
         'name',
         'tag_id',
+        'user_id',
         'commitment_id',
         'start_time',
         'end_time',
@@ -50,7 +51,7 @@ class Event extends Model
      */
     public function checks()
     {
-        return $this->belongsToMany(Check::class)->orderBy('id');
+        return $this->belongsToMany(Check::class, 'event_checks')->orderBy('id');
     }
 
 }

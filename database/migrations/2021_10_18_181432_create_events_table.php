@@ -17,7 +17,8 @@ class CreateEventsTable extends Migration
             $table->id();
             $table->string("name");
             $table->foreignId("tag_id")->constrained()->onCascade("delete");
-            $table->foreignId("commitment_id")->constrained()->onCascade("delete");
+            $table->foreignId("user_id")->constrained()->onCascade("delete");
+            $table->foreignId("commitment_id")->nullable()->constrained()->onCascade("delete");
             $table->string("start_time");
             $table->string("end_time");
             $table->string("start_date");

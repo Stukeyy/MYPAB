@@ -37,7 +37,7 @@ class Commitment extends Model
     public function events()
     {   
         // Returned by pivot table so must be many to many - although each event will only have one commitment
-        return $this->belongsToMany(Event::class)->withTimestamps();
+        return $this->belongsToMany(Event::class, 'commitment_events')->withTimestamps();
     }
 
     /**

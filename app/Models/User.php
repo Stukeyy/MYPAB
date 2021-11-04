@@ -79,11 +79,19 @@ class User extends Authenticatable
         return $this->belongsToMany(Tag::class, 'user_tags')->withTimestamps();
     }
 
+    /**
+     * Get all of the events for the user including commitments and separate events.
+     */
+    public function events()
+    {   
+        // Returned by pivot table so must be many to many - although each event will only have one user
+        return $this->belongsToMany(Event::class, 'user_events')->withTimestamps();
+    }
 
     /**
      * Get all of the events for the user made through their commitments.
      */
-    public function events()
+    public function commitment_events()
     {
         return $this->hasManyThrough(Event::class, Commitment::class);
     }

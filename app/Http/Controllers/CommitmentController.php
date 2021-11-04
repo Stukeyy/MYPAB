@@ -95,6 +95,7 @@ class CommitmentController extends Controller
             $validCommitment["isolated"] = false;
             $event = Event::create($validCommitment);
             $commitment->events()->attach($event->id);
+            // Auth::user()->events()->attach($event->id);
         }
 
         // return
@@ -191,10 +192,17 @@ class CommitmentController extends Controller
         if ($differentStartDate || $differentEndDate || $differentOccurance || $differentDay) {
             // $commitment->delete(); Cascade delete not working?
             $events = $commitment->events;
+            $commitment->events()->detach();
             foreach ($events as $event) {
+                // $event->delete(); Cascade delete not working?
+                $checks = $event->checks;
+                $event->checks()->detach();
+                // WARN IN FRONTEND THAT CHECKLIST FOR EVENTS WILL BE DELETED
+                foreach ($checks as $check) {
+                    $check->delete();
+                }
                 $event->delete();
             }
-            $commitment->events()->detach();
             // Be aware commitment is not yet updated - need to use the updated request values instead,
             // otherwise the events will be created using the old occurance for the commitment
             $this->createEvents($validCommitment);

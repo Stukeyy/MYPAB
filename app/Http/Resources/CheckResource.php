@@ -18,7 +18,7 @@ class CheckResource extends JsonResource
       // type is sent from Frontend pag making event request
       $type = $request["type"];
 
-      if ($type === "view") {
+      if ($type === "index" || $type === "view") {
           return [
               "id" => $this->id,
               "check" => $this->check,

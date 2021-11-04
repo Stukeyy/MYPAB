@@ -118,6 +118,12 @@ class DemoSeeder extends Seeder
             'parent_id' => $life->id,
             'colour' => $faker->hexColor()
         ]);
+            $holiday = Tag::create([
+                'name' => 'Holiday',
+                'global' => true,
+                'parent_id' => $self->id,
+                'colour' => $faker->hexColor()
+            ]);
 
         // ACTIVITIES
 

@@ -19,10 +19,25 @@ class EventController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {   
-        // Returned to Full Calendar Plugin - needs to be formatted differently from Event Resource
-        return response(TimetableResource::collection(Auth::user()->events), 200);
+        
+        // type sent from frontend in order to return the correty resource type
+        $type = $request->validate([
+            "type" => "required|string"
+        ]);
+
+        if ($request['type'] === 'timetable') {
+            // Returned to Full Calendar Plugin - needs to be formatted differently from Event Resource
+            $userEvents = Auth::user()->events;
+            $commitmentEvents = Auth::user()->commitment_events;
+            $allEvents = $userEvents->merge($commitmentEvents);
+            return response(TimetableResource::collection($allEvents), 200);
+        }
+        else {
+            return response(EventResource::collection(Auth::user()->events), 200);
+        }
+
     }
 
     /**
@@ -33,7 +48,32 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        // 
+        $validEvent = $request->validate([
+            "name" => "required|string",
+            "tag_id" => "required|integer|numeric",
+            "start_time" => "required|string",
+            "end_time" => "required|string",
+            "start_date" => "required|string",
+            "end_date" => "required|string",
+            "notes" => "nullable",
+            "checklist" => "nullable"
+        ]);
+        $validEvent['user_id'] = Auth::id();
+        $validEvent['isolated'] = true;
+
+        $event = Event::create($validEvent);
+        
+        foreach($validEvent['checklist'] as $check) {
+            $check = Check::create([
+                "check" => $check["value"],
+                "completed" => false
+            ]);
+            $event->checks()->attach($check->id);
+        }
+
+        Auth::user()->events()->attach($event->id);
+
+        return response('Event Added Successfully', 200);
     }
 
     /**

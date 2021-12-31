@@ -15,6 +15,7 @@ class Check extends Model
      * @var string[]
      */
     protected $fillable = [
+        'event_id',
         'check',
         'completed'
     ];
@@ -24,7 +25,7 @@ class Check extends Model
      */
     public function event()
     {
-        return $this->belongsToMany(Event::class);
+        return $this->belongsToMany(Event::class)->withTimestamps();
     }
 
 }

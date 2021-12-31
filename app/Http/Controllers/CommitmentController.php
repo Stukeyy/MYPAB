@@ -23,7 +23,8 @@ class CommitmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
+    {   
+        // return in date descending order
         return response(new CommitmentCollection(Commitment::paginate(1)));
     }
 
@@ -35,6 +36,7 @@ class CommitmentController extends Controller
      */
     public function store(Request $request)
     {    
+
         $validCommitment = $request->validate([
             "name" => "required|string",
             "tag_id" => "required|integer|numeric",
@@ -165,7 +167,7 @@ class CommitmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Commitment $commitment)
-    {
+    {   
         // When updating commitment meta data - update all assoicated events
         // If the commitment time is being updated - only update events that arent isolated
 
@@ -190,22 +192,10 @@ class CommitmentController extends Controller
         // If commitment dates, occurance or day are different from original
         // delete all previous events and create new ones
         if ($differentStartDate || $differentEndDate || $differentOccurance || $differentDay) {
-            // $commitment->delete(); Cascade delete not working?
-            $events = $commitment->events;
-            $commitment->events()->detach();
-            foreach ($events as $event) {
-                // $event->delete(); Cascade delete not working?
-                $checks = $event->checks;
-                $event->checks()->detach();
-                // WARN IN FRONTEND THAT CHECKLIST FOR EVENTS WILL BE DELETED
-                foreach ($checks as $check) {
-                    $check->delete();
-                }
-                $event->delete();
-            }
-            // Be aware commitment is not yet updated - need to use the updated request values instead,
-            // otherwise the events will be created using the old occurance for the commitment
-            $this->createEvents($validCommitment);
+            $commitment->delete(); // all related events and checks are cascade deleted
+            $newCommitment = Commitment::create($validCommitment); // new commitment made
+            $validCommitment["id"] = $newCommitment->id; // new id stored
+            $this->createEvents($validCommitment); // new events created from new commitment with updates
         }
         else {
             $events = $commitment->events;
@@ -217,7 +207,7 @@ class CommitmentController extends Controller
                     $event->save();
                 } else {
                     // if the event is the same as the commitment and not isolated - then update with new details
-                    // except for previously calculated dates via commitment occurance and dates which has remained the same
+                    // except for previously calculated dates via commitment occurance and dates which have remained the same
                     $event->name = $validCommitment["name"];
                     $event->tag_id = $validCommitment["tag_id"];
                     $event->start_time = $validCommitment["start_time"];
@@ -229,7 +219,7 @@ class CommitmentController extends Controller
         }
 
         // After checking update against original and updating events accordingly - update the commitment
-        $commitment->update($validCommitment);
+        // $commitment->update($validCommitment);
 
         return response('Commitment Updated Successfully', 200);
     }
@@ -241,7 +231,8 @@ class CommitmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Commitment $commitment)
-    {
-        //
+    {   
+        $commitment->delete(); // all related events and checks are deleted
+        return response("Commitment and Events Deleted Successfully", 200);
     }
 }

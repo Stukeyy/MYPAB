@@ -92,7 +92,7 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Tag $tag)
-    {
+    {   
         $validTag = $request->validate([
             "name" => "required",
             "parent_id" => "required|integer|numeric",
@@ -112,7 +112,9 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Tag $tag)
-    {
-        //
+    {    
+        // Auth::user()->tags()->detach($tag->id);
+        $tag->delete(); // all related commitments, events and checks are delted on cascade
+        return response("Tag and Descendants Deleted Successfully", 200);
     }
 }

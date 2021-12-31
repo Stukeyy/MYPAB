@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Carbon\Carbon;
 use App\Models\Event;
 use App\Models\Check;
 use App\Models\Checklist;
 use Illuminate\Http\Request;
+
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 use App\Http\Resources\EventResource;
 use App\Http\Resources\TimetableResource;
@@ -35,6 +37,7 @@ class EventController extends Controller
             return response(TimetableResource::collection($allEvents), 200);
         }
         else {
+            // Only returns the users single events - doesnt include commitment events
             return response(EventResource::collection(Auth::user()->events), 200);
         }
 
@@ -54,24 +57,28 @@ class EventController extends Controller
             "start_time" => "required|string",
             "end_time" => "required|string",
             "start_date" => "required|string",
-            "end_date" => "required|string",
-            "notes" => "nullable",
-            "checklist" => "nullable"
+            "end_date" => "required|string"
         ]);
         $validEvent['user_id'] = Auth::id();
         $validEvent['isolated'] = true;
 
-        $event = Event::create($validEvent);
-        
-        foreach($validEvent['checklist'] as $check) {
-            $check = Check::create([
-                "check" => $check["value"],
-                "completed" => false
-            ]);
-            $event->checks()->attach($check->id);
+        // Event range
+        $start_date = Carbon::createFromFormat('d/m/Y', $validEvent['start_date']);
+        $end_date = Carbon::createFromFormat('d/m/Y', $validEvent['end_date']);
+        $period = CarbonPeriod::create($start_date, $end_date);
+
+        $events = [];
+        foreach ($period as $date) {
+            $events[] = $date->format('d/m/Y');
         }
 
-        Auth::user()->events()->attach($event->id);
+        foreach($events as $event) {
+            // creates a separate individual event for each date the event is on for
+            $validEvent["start_date"] = $event;
+            $validEvent["end_date"] = $event;
+            $event = Event::create($validEvent);
+            Auth::user()->events()->attach($event->id);
+        }
 
         return response('Event Added Successfully', 200);
     }
@@ -128,7 +135,6 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-
         // Updates whole Event Model not just time
         // Can also add Notes and Checklist here
         $validEvent = $request->validate([
@@ -153,7 +159,6 @@ class EventController extends Controller
             $event->update($validEvent);
             // If the updated event has a different time or date that the original values for the event - set isolated to true so it is not globally updatable by Commitment update
             $event->isolated = true;
-            $event->save();
         } else {
             $event->update($validEvent);
         }
@@ -161,11 +166,14 @@ class EventController extends Controller
         $event->checks()->detach();
         foreach($updatedEvent->checklist as $check) {
             $check = Check::create([
+                "event_id" => $event->id,
                 "check" => $check["value"],
                 "completed" => false
             ]);
             $event->checks()->attach($check->id);
         }
+
+        $event->save();
 
         return response("Event Updated Successfully", 200);
     }
@@ -177,7 +185,10 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Event $event)
-    {
-        //
+    {   
+        $event->checks()->detach();
+        $event->delete();
+
+        return response("Event Deleted Successfully", 200);
     }
 }

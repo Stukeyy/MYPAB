@@ -16,8 +16,8 @@ class CreateCommitmentsTable extends Migration
         Schema::create('commitments', function (Blueprint $table) {
             $table->id();
             $table->string("name");
-            $table->foreignId("tag_id")->constrained()->onCascade("delete");
-            $table->foreignId("user_id")->constrained()->onCascade("delete");
+            $table->foreignId("tag_id")->constrained()->onDelete("cascade");
+            $table->foreignId("user_id")->constrained()->onDelete("cascade");
             $table->string("occurance");
             $table->string("day")->nullable();
             $table->string("start_time");

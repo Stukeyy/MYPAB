@@ -14,15 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Api Resource
-// GET	/photos	index
-// GET	/photos/create	create
-// POST	/photos	store
-// GET	/photos/{photo}	show
-// GET	/photos/{photo}/edit edit
-// PUT/PATCH	/photos/{photo}	update
-// DELETE	/photos/{photo}	destroy
-
 // Test
 Route::get('/check', 'App\Http\Controllers\DashboardController@check');
 

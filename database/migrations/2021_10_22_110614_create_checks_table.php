@@ -15,6 +15,7 @@ class CreateChecksTable extends Migration
     {
         Schema::create('checks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('event_id')->constrained()->onDelete("cascade");
             $table->string("check");
             $table->boolean("completed");
             $table->timestamps();

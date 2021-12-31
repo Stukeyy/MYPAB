@@ -15,8 +15,8 @@ class CreateEventChecksTable extends Migration
     {
         Schema::create('event_checks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('check_id')->constrained()->onCascade('delete');
-            $table->foreignId('event_id')->constrained()->onCascade('delete');
+            $table->foreignId('check_id')->constrained()->onDelete("cascade");
+            $table->foreignId('event_id')->constrained()->onDelete("cascade");
             $table->timestamps();
         });
     }

@@ -74,7 +74,7 @@ class Tag extends Model
     public function user()
     {   
         // Returned by pivot table so must be many to many - will only return 1 user for each
-        return $this->belongsToMany(User::class, 'user_tags');
+        return $this->belongsToMany(User::class, 'user_tags')->withTimestamps();;
     }
 
     /**

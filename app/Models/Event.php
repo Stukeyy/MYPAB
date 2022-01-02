@@ -37,6 +37,13 @@ class Event extends Model
         'pivot'
     ];
 
+    /**
+     * Get the checks that belong to the Event.
+     */
+    public function checks()
+    {
+        return $this->belongsToMany(Check::class, 'event_checks')->orderBy('id')->withTimestamps();;
+    }
 
     /**
      * Get the tag that the event belongs to.
@@ -44,14 +51,6 @@ class Event extends Model
     public function tag()
     {
         return $this->belongsTo(Tag::class);
-    }
-
-    /**
-     * Get the checks that belong to the Event.
-     */
-    public function checks()
-    {
-        return $this->belongsToMany(Check::class, 'event_checks')->orderBy('id')->withTimestamps();;
     }
 
 }

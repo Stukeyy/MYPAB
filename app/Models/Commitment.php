@@ -26,14 +26,9 @@ class Commitment extends Model
         'end_date'
     ];
 
-    // /**
-    //  * Get the events related to the commitment.
-    //  */
-    // public function events()
-    // {
-    //     return $this->hasMany(Event::class);
-    // }
-
+    /**
+     * Get the events related to the commitment.
+     */
     public function events()
     {   
         // Returned by pivot table so must be many to many - although each event will only have one commitment

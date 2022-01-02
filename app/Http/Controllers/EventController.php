@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
 use App\Http\Resources\EventResource;
+use App\Http\Resources\EventCollection;
 use App\Http\Resources\TimetableResource;
 
 class EventController extends Controller
@@ -38,7 +39,7 @@ class EventController extends Controller
         }
         else {
             // Only returns the users single events - doesnt include commitment events
-            return response(EventResource::collection(Auth::user()->events), 200);
+            return response(new EventCollection(Auth::user()->events()->paginate(1)), 200);
         }
 
     }

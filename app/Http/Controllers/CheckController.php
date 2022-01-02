@@ -38,9 +38,6 @@ class CheckController extends Controller
             "eventID" => "required"
         ]);
 
-        // Need to detach check from pivot table first and then delete
-        $event = Event::find($request["eventID"]);
-        $event->checks()->detach($check->id);
         $check->delete();
         return response("Check Deleted Successfully", 200);
     }

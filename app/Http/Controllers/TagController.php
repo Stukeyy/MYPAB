@@ -22,6 +22,7 @@ class TagController extends Controller
         $globalTags = Tag::where('global', true)->orderBy('id', 'ASC')->get();
         $userTags = Auth::user()->tags;
         $mergedTags = $globalTags->merge($userTags);
+        // cannot paginate merged collection - paginated in frontend
 
         return response(TagResource::collection($mergedTags), 200);
     }
@@ -113,7 +114,6 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {    
-        // Auth::user()->tags()->detach($tag->id);
         $tag->delete(); // all related commitments, events and checks are delted on cascade
         return response("Tag and Descendants Deleted Successfully", 200);
     }

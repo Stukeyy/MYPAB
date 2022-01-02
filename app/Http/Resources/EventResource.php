@@ -23,9 +23,9 @@ class EventResource extends JsonResource
             $read_start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('d/m/Y');
             $read_end_date = Carbon::createFromFormat('d/m/Y H:i', ($this->end_date . ' ' . $this->end_time))->format('d/m/Y');
             // 01/12/2021
-            $read_start_time = Carbon::createFromFormat('H:i', $this->start_time)->format('h:ia');
-            $read_end_time = Carbon::createFromFormat('H:i', $this->end_time)->format('h:ia');
-            // 09:15am
+            $read_start_time = Carbon::createFromFormat('H:i', $this->start_time)->format('H:i');
+            $read_end_time = Carbon::createFromFormat('H:i', $this->end_time)->format('H:i');
+            // 09:15 24 hour
 
             return [
                 'id' => $this->id,
@@ -50,8 +50,8 @@ class EventResource extends JsonResource
             $read_start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('l \\t\\h\\e jS \\of F Y');
             $read_end_date = Carbon::createFromFormat('d/m/Y H:i', ($this->end_date . ' ' . $this->end_time))->format('l \\t\\h\\e jS \\of F Y');
             // Thursday the 21st October
-            $read_start_time = Carbon::createFromFormat('H:i', $this->start_time)->format('h:ia');
-            $read_end_time = Carbon::createFromFormat('H:i', $this->end_time)->format('h:ia');
+            $read_start_time = Carbon::createFromFormat('H:i', $this->start_time)->format('H:i');
+            $read_end_time = Carbon::createFromFormat('H:i', $this->end_time)->format('H:i');
             // 09:15am
 
             return [

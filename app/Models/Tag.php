@@ -31,7 +31,8 @@ class Tag extends Model
      * Get the parent of the tag.
      */
     public function parent()
-    {
+    {   
+        // run check to make sure not work or life as these have no parent?
         return $this->belongsTo(Tag::class);
     }
 

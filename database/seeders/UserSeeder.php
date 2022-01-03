@@ -36,8 +36,8 @@ class UserSeeder extends Seeder
 
         // Users
         $user = User::create([
-            "firstname" => "stephen",
-            "lastname" => "ross",
+            "firstname" => "admin",
+            "lastname" => "user",
             "age" => 23,
             "gender" => "male",
             "location" => "down",

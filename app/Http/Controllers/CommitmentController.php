@@ -25,7 +25,7 @@ class CommitmentController extends Controller
     public function index()
     {   
         // return in date descending order
-        return response(new CommitmentCollection(Commitment::paginate(1)));
+        return response(new CommitmentCollection(Commitment::orderBy('start_date', 'ASC')->paginate(3)));
     }
 
     /**

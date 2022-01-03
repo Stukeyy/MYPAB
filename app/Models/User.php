@@ -76,7 +76,7 @@ class User extends Authenticatable
      */
     public function tags()
     {
-        return $this->belongsToMany(Tag::class, 'user_tags')->withTimestamps();
+        return $this->belongsToMany(Tag::class, 'user_tags')->withTimestamps()->orderBy('id', 'ASC');
     }
 
     /**
@@ -85,7 +85,7 @@ class User extends Authenticatable
     public function events()
     {   
         // Returned by pivot table so must be many to many - although each event will only have one user
-        return $this->belongsToMany(Event::class, 'user_events')->withTimestamps();
+        return $this->belongsToMany(Event::class, 'user_events')->withTimestamps()->orderBy('start_date', 'ASC');
     }
 
     /**

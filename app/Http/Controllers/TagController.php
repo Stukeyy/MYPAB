@@ -93,16 +93,29 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Tag $tag)
-    {   
-        $validTag = $request->validate([
-            "name" => "required",
-            "parent_id" => "required|integer|numeric",
-            "colour" => "required"
-        ]);
-        // Should users be able to set their tags to globally available for other users?
+    {      
+        // cannot update base work or life tags - only their colour via table
+        if ($tag->id !== 1 && $tag->id !== 2) {
+            $validTag = $request->validate([
+                "name" => "required",
+                "parent_id" => "required|integer|numeric",
+                "colour" => "required"
+            ]);
+            // Should users be able to set their tags to globally available for other users? Maybe suggestion section instead?
 
-        $tag->update($validTag);
-        return response("Tag Updated Successfully", 200);
+            // child options removed from parent update in frontend - also checked here - cannot make child parent of own parent
+            foreach ($tag->children as $child) {
+                if ($child->id === $validTag["parent_id"]) {
+                    return response("Cannot make child parent", 500);        
+                }
+            }
+
+            $tag->update($validTag);
+
+            return response("Tag Updated Successfully", 200);
+        } else {
+            return response("Cannot Update Base Tags", 500);
+        }
 
     }
 
@@ -114,7 +127,7 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {    
-        $tag->delete(); // all related commitments, events and checks are delted on cascade
+        $tag->delete(); // all related commitments, events and checks are delted on cascade - SHOW WARNING!
         return response("Tag and Descendants Deleted Successfully", 200);
     }
 }

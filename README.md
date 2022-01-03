@@ -2,15 +2,18 @@
 
 #### Dependencies
 - php
-- node
 - composer
+- node
 - npm
+- postgres
 - vue
 - git
-- postgres
 
-1. Clone Repo
-    - git clone https://gitlab.scm.ulster.ac.uk/final-project/backend.git
+1. Create new directory
+    - mkdir project
+
+1. Clone Repos
+    - backend - git clone https://gitlab.scm.ulster.ac.uk/final-project/backend.git
 
 2. Install dependencies
     - composer install

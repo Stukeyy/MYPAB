@@ -11,19 +11,24 @@
 
 1. Create new directory
     - mkdir project
+    - cd project
 
-1. Clone Repos
-    - backend - git clone https://gitlab.scm.ulster.ac.uk/final-project/backend.git
+2. Clone Repos
+    - backend - git clone https://gitlab.com/final-project24/backend.git
+    - frontend - git clone https://gitlab.com/final-project24/frontend.git
 
-2. Install dependencies
+3. Install dependencies
+    - cd backend
     - composer install
+    - cd ../frontend
+    - npm install
 
-3. start local postgres server and connect
+4. start local postgres server and connect
     - brew services start postgresql
     - psql postgres
     - CREATE DATABASE database;
 
-4. Update env file to point to database
+5. Update .env file in backend to point to database
     - DB_CONNECTION=pgsql
     - DB_HOST=127.0.0.1
     - DB_PORT=5432
@@ -31,9 +36,20 @@
     - DB_USERNAME=user
     - DB_PASSWORD=password
 
-5. To backup the application
+6. Migrate and seed database
+    - cd ../backend
+    - php artisan migrate:fresh --seed
+
+7. Host application
+    - php artisan serve
+    - cd ../frontend
+    - npm run dev
+    - visit http://localhost:8001
+
+8. Register or sign in to application
+    - demo@mail.com
+    - password
+
+9. To backup the application
     - php artisan backup:run --only-files
     - This is stored in storage/app/backups
-
-
-<!-- New Repo Update -->

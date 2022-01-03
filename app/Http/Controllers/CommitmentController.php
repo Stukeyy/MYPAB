@@ -24,8 +24,7 @@ class CommitmentController extends Controller
      */
     public function index()
     {   
-        // return in date descending order
-        return response(new CommitmentCollection(Commitment::orderBy('start_date', 'ASC')->paginate(3)));
+        return response(new CommitmentCollection(Auth::user()->commitments()->paginate(3)));
     }
 
     /**
@@ -97,10 +96,11 @@ class CommitmentController extends Controller
             $validCommitment["isolated"] = false;
             $event = Event::create($validCommitment);
             $commitment->events()->attach($event->id);
-            // Auth::user()->events()->attach($event->id);
+            // Auth::user()->events()->attach($event->id); 
+            // Not added to user_events table as this is for individual events only
+            // Instead added to commitment_events table and merged with user_events instead
         }
 
-        // return
     }
 
     // Gets the date of the selected recurring day of the commitment e.g. first wednesday in range..
@@ -198,6 +198,7 @@ class CommitmentController extends Controller
             $this->createEvents($validCommitment); // new events created from new commitment with updates
         }
         else {
+            $commitment->update($validCommitment);
             $events = $commitment->events;
 
             foreach ($events as $event) {

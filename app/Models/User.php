@@ -80,12 +80,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all of the events for the user including commitments and separate events.
+     * Get all of the commitments for the user.
      */
-    public function events()
+    public function commitments()
     {   
-        // Returned by pivot table so must be many to many - although each event will only have one user
-        return $this->belongsToMany(Event::class, 'user_events')->withTimestamps()->orderBy('start_date', 'ASC');
+        return $this->hasMany(Commitment::class)->orderBy('start_date', 'ASC');
     }
 
     /**
@@ -94,6 +93,15 @@ class User extends Authenticatable
     public function commitment_events()
     {
         return $this->hasManyThrough(Event::class, Commitment::class);
+    }
+
+    /**
+     * Get all of the events for the user including commitments and separate events.
+     */
+    public function events()
+    {   
+        // Returned by pivot table so must be many to many - although each event will only have one user
+        return $this->belongsToMany(Event::class, 'user_events')->withTimestamps()->orderBy('start_date', 'ASC');
     }
 
     /**

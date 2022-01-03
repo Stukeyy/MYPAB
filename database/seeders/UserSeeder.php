@@ -44,12 +44,27 @@ class UserSeeder extends Seeder
             "level" => "undergraduate",
             "institution" => "ulster university",
             "subject" => "interactive media, design & computing",
-            "employed" => false,
-            "email" => "stephenr.ross@yahoo.com",
+            "employed" => true,
+            "email" => "admin@mail.com",
             "email_verified_at" => Carbon::now(),
             "password" => "password"
         ])->assignRole($admin);
         // Password hashed in User Model accessor
+
+        $user = User::create([
+            "firstname" => "demo",
+            "lastname" => "user",
+            "age" => 23,
+            "gender" => "male",
+            "location" => "down",
+            "level" => "undergraduate",
+            "institution" => "ulster university",
+            "subject" => "interactive media, design & computing",
+            "employed" => true,
+            "email" => "demo@mail.com",
+            "email_verified_at" => Carbon::now(),
+            "password" => "password"
+        ])->assignRole($admin);
 
         // Base Tags
 

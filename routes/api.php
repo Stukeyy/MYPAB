@@ -20,6 +20,7 @@ Route::get('/check', 'App\Http\Controllers\DashboardController@check');
 // Login
 Route::post('/login', 'App\Http\Controllers\Auth\AuthController@login');
 Route::post('/register', 'App\Http\Controllers\Auth\AuthController@register');
+Route::post('/register/email', 'App\Http\Controllers\Auth\AuthController@checkEmail');
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 

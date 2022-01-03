@@ -55,6 +55,13 @@ class AuthController extends Controller
         return response($authDetails);
     }
 
+    public function checkEmail(Request $request) {
+        $validEmail = $request->validate([
+            "email" => "required|email|unique:users"
+        ]);
+        return response("Email Is Unique", 200);
+    }
+
     public function register(Request $request)
     {
 

@@ -37,60 +37,60 @@ class DemoSeeder extends Seeder
             'parent_id' => $work->id,
             'colour' => $faker->hexColor()
         ]);
-            $uni = Tag::create([
-                'name' => 'Ulster University',
-                'global' => true,
-                'parent_id' => $education->id,
-                'colour' => $faker->hexColor()
-            ]);
-                $fullStack = Tag::create([
-                    'name' => 'Full Stack',
-                    'global' => true,
-                    'parent_id' => $uni->id,
-                    'colour' => $faker->hexColor()
-                ]);
-                $project = Tag::create([
-                    'name' => 'Project',
-                    'global' => true,
-                    'parent_id' => $uni->id,
-                    'colour' => $faker->hexColor()
-                ]);
-                $cloud = Tag::create([
-                    'name' => 'Cloud',
-                    'global' => true,
-                    'parent_id' => $uni->id,
-                    'colour' => $faker->hexColor()
-                ]);
+            // $uni = Tag::create([
+            //     'name' => 'Ulster University',
+            //     'global' => true,
+            //     'parent_id' => $education->id,
+            //     'colour' => $faker->hexColor()
+            // ]);
+            //     $fullStack = Tag::create([
+            //         'name' => 'Full Stack',
+            //         'global' => true,
+            //         'parent_id' => $uni->id,
+            //         'colour' => $faker->hexColor()
+            //     ]);
+            //     $project = Tag::create([
+            //         'name' => 'Project',
+            //         'global' => true,
+            //         'parent_id' => $uni->id,
+            //         'colour' => $faker->hexColor()
+            //     ]);
+            //     $cloud = Tag::create([
+            //         'name' => 'Cloud',
+            //         'global' => true,
+            //         'parent_id' => $uni->id,
+            //         'colour' => $faker->hexColor()
+            //     ]);
         $career = Tag::create([
             'name' => 'Career',
             'global' => true,
             'parent_id' => $work->id,
             'colour' => $faker->hexColor()
         ]);
-            $gd = Tag::create([
-                'name' => 'Galvia Digital',
-                'global' => true,
-                'parent_id' => $career->id,
-                'colour' => $faker->hexColor()
-            ]);
-                $project = Tag::create([
-                    'name' => 'Wrld 3D',
-                    'global' => true,
-                    'parent_id' => $gd->id,
-                    'colour' => $faker->hexColor()
-                ]);
+            // $gd = Tag::create([
+            //     'name' => 'Galvia Digital',
+            //     'global' => true,
+            //     'parent_id' => $career->id,
+            //     'colour' => $faker->hexColor()
+            // ]);
+                // $project = Tag::create([
+                //     'name' => 'Wrld 3D',
+                //     'global' => true,
+                //     'parent_id' => $gd->id,
+                //     'colour' => $faker->hexColor()
+                // ]);
             $portfolio = Tag::create([
                 'name' => 'Portfolio',
                 'global' => true,
                 'parent_id' => $career->id,
                 'colour' => $faker->hexColor()
             ]);
-                $project = Tag::create([
-                    'name' => 'Calendar',
-                    'global' => true,
-                    'parent_id' => $portfolio->id,
-                    'colour' => $faker->hexColor()
-                ]);
+                // $project = Tag::create([
+                //     'name' => 'Calendar',
+                //     'global' => true,
+                //     'parent_id' => $portfolio->id,
+                //     'colour' => $faker->hexColor()
+                // ]);
             $skills = Tag::create([
                 'name' => 'Skills',
                 'global' => true,

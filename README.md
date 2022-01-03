@@ -1,5 +1,14 @@
 # Ulster University Final Year Project
 
+#### Dependencies
+- php
+- node
+- composer
+- npm
+- vue
+- git
+- postgres
+
 1. Clone Repo
     - git clone https://gitlab.scm.ulster.ac.uk/final-project/backend.git
 

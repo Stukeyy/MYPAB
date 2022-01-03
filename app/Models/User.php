@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -22,6 +23,13 @@ class User extends Authenticatable
     protected $fillable = [
         'firstname',
         'lastname',
+        'age',
+        'gender',
+        'location',
+        'level',
+        'institution',
+        'subject',
+        'employed',
         'email',
         'password',
     ];
@@ -34,6 +42,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'pivot'
     ];
 
     /**
@@ -45,9 +54,54 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
+
+    /**
+     * Hashes user password.
+     *
+     * @param  string  $value
+     * @return void
+     */
+    public function setPasswordAttribute($value)
+    { 
+        $this->attributes['password'] = Hash::make($value);
+    }
+
+
     public function getFullNameAttribute() {
         return ucFirst($this->firstname) . " " . ucfirst($this->lastname);
+    }
+
+    /**
+     * Get the tags that belong to the user.
+     */
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'user_tags')->withTimestamps()->orderBy('id', 'ASC');
+    }
+
+    /**
+     * Get all of the events for the user including commitments and separate events.
+     */
+    public function events()
+    {   
+        // Returned by pivot table so must be many to many - although each event will only have one user
+        return $this->belongsToMany(Event::class, 'user_events')->withTimestamps()->orderBy('start_date', 'ASC');
+    }
+
+    /**
+     * Get all of the events for the user made through their commitments.
+     */
+    public function commitment_events()
+    {
+        return $this->hasManyThrough(Event::class, Commitment::class);
+    }
+
+    /**
+     * Get the activities that belong to the user.
+     */
+    public function activities()
+    {
+        return $this->belongsToMany(Activity::class, 'user_activities')->withTimestamps();
     }
 
 }

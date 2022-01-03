@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Tag;
 use Illuminate\Support\Facades\Hash;
 
 use Spatie\Permission\Models\Role;
@@ -35,12 +36,49 @@ class UserSeeder extends Seeder
 
         // Users
         $user = User::create([
-            "firstname" => "Stephen",
-            "lastname" => "Ross",
-            "email" => "stephenr.ross@yahoo.com",
+            "firstname" => "admin",
+            "lastname" => "user",
+            "age" => 23,
+            "gender" => "male",
+            "location" => "down",
+            "level" => "undergraduate",
+            "institution" => "ulster university",
+            "subject" => "interactive media, design & computing",
+            "employed" => true,
+            "email" => "admin@mail.com",
             "email_verified_at" => Carbon::now(),
-            "password" => Hash::make("password")
+            "password" => "password"
         ])->assignRole($admin);
+        // Password hashed in User Model accessor
+
+        $user = User::create([
+            "firstname" => "demo",
+            "lastname" => "user",
+            "age" => 23,
+            "gender" => "male",
+            "location" => "down",
+            "level" => "undergraduate",
+            "institution" => "ulster university",
+            "subject" => "interactive media, design & computing",
+            "employed" => true,
+            "email" => "demo@mail.com",
+            "email_verified_at" => Carbon::now(),
+            "password" => "password"
+        ])->assignRole($admin);
+
+        // Base Tags
+
+        $work = Tag::create([
+            'name' => 'Work',
+            'global' => true,
+            'colour' => $faker->hexColor()
+        ]);
+
+        $life = Tag::create([
+            'name' => 'Life',
+            'global' => true,
+            'colour' => $faker->hexColor()
+        ]);
 
     }
 }

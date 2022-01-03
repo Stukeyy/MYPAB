@@ -120,6 +120,7 @@ class EventController extends Controller
         $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
         $event->end_date = Carbon::parse($newTimes->newEnd)->format('d/m/Y');
         // Isolated is set to true - still remains part of commitment but as it has isolated times - it will not be globally updated by commitment
+        // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
         $event->isolated = true;
         $event->save();
 
@@ -159,6 +160,7 @@ class EventController extends Controller
         if($differentStartTime || $differentEndTime || $differentDate) {
             $event->update($validEvent);
             // If the updated event has a different time or date that the original values for the event - set isolated to true so it is not globally updatable by Commitment update
+            // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
             $event->isolated = true;
         } else {
             $event->update($validEvent);

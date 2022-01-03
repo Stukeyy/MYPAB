@@ -190,9 +190,9 @@ class CommitmentController extends Controller
         $differentDay = ($validCommitment["day"] !== $commitment->day);
 
         // If commitment dates, occurance or day are different from original
-        // delete all previous events and create new ones
+        // delete all previous events and create new ones - EVEN ISOLATED?
         if ($differentStartDate || $differentEndDate || $differentOccurance || $differentDay) {
-            $commitment->delete(); // all related events and checks are cascade deleted
+            $commitment->delete(); // all related events and checks are cascade deleted - EVEN ISOLATED?
             $newCommitment = Commitment::create($validCommitment); // new commitment made
             $validCommitment["id"] = $newCommitment->id; // new id stored
             $this->createEvents($validCommitment); // new events created from new commitment with updates

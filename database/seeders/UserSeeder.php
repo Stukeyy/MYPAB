@@ -66,19 +66,26 @@ class UserSeeder extends Seeder
             "password" => "password"
         ])->assignRole($admin);
 
-        // Base Tags
+        // $users = User::all();
+        // foreach($users as $user) {
 
-        $work = Tag::create([
-            'name' => 'Work',
-            'global' => true,
-            'colour' => $faker->hexColor()
-        ]);
+        //     // Base Tags
 
-        $life = Tag::create([
-            'name' => 'Life',
-            'global' => true,
-            'colour' => $faker->hexColor()
-        ]);
+        //     $work = Tag::create([
+        //         'name' => 'Work',
+        //         'global' => true,
+        //         'colour' => $faker->hexColor()
+        //     ]);
+        //     $user->tags()->attach($work->id);
+
+        //     $life = Tag::create([
+        //         'name' => 'Life',
+        //         'global' => true,
+        //         'colour' => $faker->hexColor()
+        //     ]);
+        //     $user->tags()->attach($life->id);
+
+        // }
 
     }
 }

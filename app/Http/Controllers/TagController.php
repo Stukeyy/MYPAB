@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\User;
 use App\Models\Tag;
+
 use App\Http\Resources\TagResource;
+use App\Http\Resources\TagCollection;
 
 class TagController extends Controller
 {
@@ -19,12 +21,7 @@ class TagController extends Controller
      */
     public function index()
     {   
-        $globalTags = Tag::where('global', true)->orderBy('id', 'ASC')->get();
-        $userTags = Auth::user()->tags;
-        $mergedTags = $globalTags->merge($userTags);
-        // cannot paginate merged collection - paginated in frontend
-
-        return response(TagResource::collection($mergedTags), 200);
+        return response(new TagCollection(Auth::user()->tags()->paginate(3)), 200);
     }
 
     /**

@@ -19,9 +19,22 @@ class TagController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {   
-        return response(new TagCollection(Auth::user()->tags()->paginate(3)), 200);
+
+        // type sent from frontend in order to return the correct resource type
+        $type = $request->validate([
+            "type" => "required|string"
+        ]);
+
+        if ($request['type'] === 'table') {
+            // tags paginated for tag table
+            return response(new TagCollection(Auth::user()->tags()->paginate(3)->appends(request()->query())), 200);
+        }
+        else {
+            // all tags returned for add and update forms
+            return response(TagResource::collection(Auth::user()->tags), 200);
+        }
     }
 
     /**

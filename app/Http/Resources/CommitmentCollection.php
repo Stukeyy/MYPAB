@@ -18,7 +18,7 @@ class CommitmentCollection extends ResourceCollection
             'data' => $this->collection,
             'pagination' => [
                 'totalCommitments' => $this->total(),
-                'commitmentsPerPage' => $this->count(),
+                'commitmentsPerPage' => $this->perPage(),
                 'currentPage' => $this->currentPage(),
                 'previousPage' => $this->previousPageUrl(),
                 'nextPage' => $this->nextPageUrl(),

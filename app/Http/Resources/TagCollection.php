@@ -18,7 +18,7 @@ class TagCollection extends ResourceCollection
             'data' => $this->collection,
             'pagination' => [
                 'totalTags' => $this->total(),
-                'tagsPerPage' => $this->count(),
+                'tagsPerPage' => $this->perPage(),
                 'currentPage' => $this->currentPage(),
                 'previousPage' => $this->previousPageUrl(),
                 'nextPage' => $this->nextPageUrl(),

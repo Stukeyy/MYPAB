@@ -25,7 +25,7 @@ class EventController extends Controller
     public function index(Request $request)
     {   
         
-        // type sent from frontend in order to return the correty resource type
+        // type sent from frontend in order to return the correct resource type
         $type = $request->validate([
             "type" => "required|string"
         ]);
@@ -39,7 +39,7 @@ class EventController extends Controller
         }
         else {
             // Only returns the users single events - doesnt include commitment events
-            return response(new EventCollection(Auth::user()->events()->paginate(3)), 200);
+            return response(new EventCollection(Auth::user()->events()->paginate(3)->appends(request()->query())), 200);
         }
 
     }

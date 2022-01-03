@@ -18,7 +18,7 @@ class EventCollection extends ResourceCollection
             'data' => $this->collection,
             'pagination' => [
                 'totalEvents' => $this->total(),
-                'eventsPerPage' => $this->count(),
+                'eventsPerPage' => $this->perPage(),
                 'currentPage' => $this->currentPage(),
                 'previousPage' => $this->previousPageUrl(),
                 'nextPage' => $this->nextPageUrl(),

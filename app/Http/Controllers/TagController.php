@@ -137,7 +137,7 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {    
-        $tag->delete(); // all related commitments, events and checks are delted on cascade - SHOW WARNING!
+        $tag->delete(); // all related activities, commitments, events and checks are cascaded on delete - SHOW WARNING!
         return response("Tag and Descendants Deleted Successfully", 200);
     }
 }

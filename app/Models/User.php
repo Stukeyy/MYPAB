@@ -109,7 +109,7 @@ class User extends Authenticatable
      */
     public function activities()
     {
-        return $this->belongsToMany(Activity::class, 'user_activities')->withTimestamps();
+        return $this->belongsToMany(Activity::class, 'user_activities')->withTimestamps()->orderBy('id', 'ASC');
     }
 
 }

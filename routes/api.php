@@ -32,6 +32,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Called after Tag Table colour picker - only updates colour - separate update method and needs to be called before apiResource
     Route::put('/tags/{tag}/colour', 'App\Http\Controllers\TagController@updateColour');
     Route::apiResource('/tags', 'App\Http\Controllers\TagController');
+    // Activities
+    Route::apiResource('/activities', 'App\Http\Controllers\ActivityController');
     // Commitments
     Route::apiResource('/commitments', 'App\Http\Controllers\CommitmentController');
     // Events

@@ -105,6 +105,23 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all of the tasks for the user.
+     */
+    public function tasks()
+    {   
+        // Returned by pivot table so must be many to many - although each task will only have one user
+        return $this->belongsToMany(Task::class, 'user_tasks')->withTimestamps();
+    }
+    public function completed_tasks()
+    {   
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', true)->orderBy('updated_at', 'DESC')->withTimestamps();
+    }
+    public function incomplete_tasks()
+    {   
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy('updated_at', 'DESC')->withTimestamps();
+    }
+
+    /**
      * Get the activities that belong to the user.
      */
     public function activities()

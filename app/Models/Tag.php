@@ -75,7 +75,7 @@ class Tag extends Model
     public function user()
     {   
         // Returned by pivot table so must be many to many - will only return 1 user for each
-        return $this->belongsToMany(User::class, 'user_tags')->withTimestamps();;
+        return $this->belongsToMany(User::class, 'user_tags')->withTimestamps();
     }
 
     /**
@@ -85,6 +85,15 @@ class Tag extends Model
     {
         // Need to be limited to individual user before calling
         return $this->hasMany(Event::class);
+    }
+
+    /**
+     * Get the tasks related to the tag.
+     */
+    public function tasks()
+    {
+        // Need to be limited to individual user before calling
+        return $this->hasMany(Task::class);
     }
 
     /**

@@ -33,8 +33,9 @@ class EventController extends Controller
         if ($request['type'] === 'timetable') {
             // Returned to Full Calendar Plugin - needs to be formatted differently from Event Resource
             $userEvents = Auth::user()->events;
+            $userTasks = Auth::user()->dated_tasks;
             $commitmentEvents = Auth::user()->commitment_events;
-            $allEvents = $userEvents->merge($commitmentEvents);
+            $allEvents = $userEvents->merge($userTasks)->merge($commitmentEvents);
             return response(TimetableResource::collection($allEvents), 200);
         }
         else {

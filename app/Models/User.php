@@ -120,6 +120,11 @@ class User extends Authenticatable
     {   
         return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy('updated_at', 'DESC')->withTimestamps();
     }
+    // returns the tasks which have been assigned a date to be displayed on the calendar
+    public function dated_tasks()
+    {   
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('start_date', '!=', '')->withTimestamps();
+    }
 
     /**
      * Get the activities that belong to the user.

@@ -41,6 +41,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Checks
     Route::apiResource('/checks', 'App\Http\Controllers\CheckController');
     // Tasks
+    // Called after Full Calendar drag and drop - only updates time - separate to update method and needs to be called before apiResource
+    Route::put('/tasks/{task}/time', 'App\Http\Controllers\TaskController@updateTime');
     // Called when clicking complete button on tasks table
     Route::put('/tasks/{task}/complete', 'App\Http\Controllers\TaskController@completeTask');
     Route::apiResource('/tasks', 'App\Http\Controllers\TaskController');

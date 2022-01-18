@@ -54,6 +54,7 @@ class TaskController extends Controller
         ]);
         $validTask['user_id'] = Auth::id();
         $validTask['completed'] = false;
+        $validTask['all_day'] = false;
 
         // format date
         if(isset($validTask['start_date'])) {
@@ -62,8 +63,6 @@ class TaskController extends Controller
             if(isset($validTask['start_date']) && !isset($validTask['start_time'])) {
                 $validTask['all_day'] = true;
             }
-        } else {
-            $validTask['all_day'] = false;
         }
 
         $task = Task::create($validTask);
@@ -90,6 +89,29 @@ class TaskController extends Controller
     public function show(Task $task)
     {
         //
+    }
+
+    /**
+     * This method is called via a separate route which is called when an
+     * task is dragged and dropped on the Full Calendar plugin and its time is updated
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Task  $task
+     * @return \Illuminate\Http\Response
+     */
+    public function updateTime(Request $request, Task $task)
+    {   
+        $newTimes = (object) $request->validate([
+            'newStart' => 'required',
+            'newEnd' => 'required'
+        ]);
+
+        $task->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+        $task->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
+        $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+        $task->save();
+
+        return response("Task Updated Successfully", 200);
     }
 
     /**

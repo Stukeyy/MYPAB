@@ -117,27 +117,32 @@ class EventController extends Controller
             'newEnd' => 'requiredIf:allDay,==,false'
         ]);
 
-        // If updating an events time on the calendar
-        if (!$newTimes->allDay) {
-            $task->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
-            $task->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
-            $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
-        // If moving an event to or from allDay section
-        } else {
-            $allDayStartTime = Carbon::parse($newTimes->newStart)->format('H:i');
-            $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
-            // If moving a calendar task to all day - start time is set as date only - Carbon parsing auto sets time to 0
-            if ($allDayStartTime == '00:00') {
-                $task->start_time = null;
-                $task->end_time = null;
-                $task->all_day = true;
-            // If moving an all day task to the calendar - start time is set as date and time dropped on - Carbon parsing sets as time given
-            } else {
-                $task->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
-                $task->all_day = false;
-            }
-        }
-        $task->save();
+        //  // If updating an events time on the calendar
+        //  if (!$newTimes->allDay) {
+        //     $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+        //     $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
+        //     $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+        //     $event->end_date = Carbon::parse($newTimes->newEnd)->format('d/m/Y');
+        // // If moving an event to or from allDay section
+        // } else {
+        //     $allDayStartTime = Carbon::parse($newTimes->newStart)->format('H:i');
+        //     $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+        //     // If moving a calendar event to all day - start time is set as date only - Carbon parsing auto sets time to 0
+        //     if ($allDayStartTime == '00:00') {
+        //         $event->start_time = null;
+        //         $event->end_time = null;
+        //         $event->end_date = null;
+        //         $event->all_day = true;
+        //     // If moving an all day event to the calendar - start time is set as date and time dropped on - Carbon parsing sets as time given
+        //     } else {
+        //         $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+        //         $event->all_day = false;
+        //     }
+        // }
+        // // Isolated is set to true - still remains part of commitment but as it has isolated times - it will not be globally updated by commitment
+        // // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
+        // $event->isolated = true;
+        // $event->save();
 
         $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
         $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');

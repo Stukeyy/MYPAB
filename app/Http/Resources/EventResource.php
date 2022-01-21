@@ -35,9 +35,7 @@ class EventResource extends JsonResource
                 'start_time' => $read_start_time,
                 'end_time' => $read_end_time,
                 'start_date' => $read_start_date,
-                'end_date' => $read_end_date,
-                'notes' => $this->notes,
-                'checklist' => (count($this->checks) > 0) ? CheckResource::collection($this->checks) : null
+                'end_date' => $read_end_date
             ];
 
         }
@@ -52,7 +50,7 @@ class EventResource extends JsonResource
             // Thursday the 21st October
             $read_start_time = Carbon::createFromFormat('H:i', $this->start_time)->format('H:i');
             $read_end_time = Carbon::createFromFormat('H:i', $this->end_time)->format('H:i');
-            // 09:15am
+            // 09:15 24 hour
 
             return [
                 'id' => $this->id,

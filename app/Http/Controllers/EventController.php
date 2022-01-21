@@ -112,9 +112,32 @@ class EventController extends Controller
     public function updateTime(Request $request, Event $event)
     {   
         $newTimes = (object) $request->validate([
-            'newStart' => 'required',
-            'newEnd' => 'required'
+            'allDay' => 'boolean|required',
+            'newStart' => 'requiredIf:allDay,==,false',
+            'newEnd' => 'requiredIf:allDay,==,false'
         ]);
+
+        // If updating an events time on the calendar
+        if (!$newTimes->allDay) {
+            $task->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+            $task->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
+            $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+        // If moving an event to or from allDay section
+        } else {
+            $allDayStartTime = Carbon::parse($newTimes->newStart)->format('H:i');
+            $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+            // If moving a calendar task to all day - start time is set as date only - Carbon parsing auto sets time to 0
+            if ($allDayStartTime == '00:00') {
+                $task->start_time = null;
+                $task->end_time = null;
+                $task->all_day = true;
+            // If moving an all day task to the calendar - start time is set as date and time dropped on - Carbon parsing sets as time given
+            } else {
+                $task->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+                $task->all_day = false;
+            }
+        }
+        $task->save();
 
         $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
         $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');

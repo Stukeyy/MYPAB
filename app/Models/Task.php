@@ -37,6 +37,14 @@ class Task extends Model
     ];
 
     /**
+     * Get the checks that belong to the Task.
+     */
+    public function checks()
+    {
+        return $this->belongsToMany(Check::class, 'task_checks')->orderBy('id')->withTimestamps();
+    }
+
+    /**
      * Get the tag that the task belongs to.
      */
     public function tag()

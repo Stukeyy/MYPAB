@@ -24,13 +24,13 @@ class TimetableResource extends JsonResource
         if (isset($this->task)) {
             $type = 'task';
             $title = $this->task;
-            // If a start date and start time have been picked and end time updated via balance or calender drag and drop
+            // If a start date, start time and end time have been set
             if (isset($this->start_date) && isset($this->start_time) && isset($this->end_time)) {
                 $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
                 $end_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->end_time))->format('Y-m-d H:i');
                 $all_day = false;
             }
-            // If a start date and start time have been picked
+            // If a start date and start time have been picked - automatically shown as an hour long on calendar
             else if (isset($this->start_date) && isset($this->start_time)) {
                 $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
                 $end_date = $start_date;
@@ -59,7 +59,7 @@ class TimetableResource extends JsonResource
             'start' => $start_date,
             'end' => $end_date,
             'allDay' => $all_day,
-            'eventDisplay' => 'block',
+            'display' => 'block',
             'backgroundColor' => $this->tag->colour,
             'borderColor' => $this->tag->colour,
             'type' => $type

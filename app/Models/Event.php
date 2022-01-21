@@ -41,7 +41,7 @@ class Event extends Model
      */
     public function checks()
     {
-        return $this->belongsToMany(Check::class, 'event_checks')->orderBy('id')->withTimestamps();;
+        return $this->belongsToMany(Check::class, 'event_checks')->orderBy('id')->withTimestamps();
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use App\Models\Task;
+use App\Models\Check;
 use Illuminate\Http\Request;
 
 use Carbon\Carbon;
@@ -28,7 +29,7 @@ class TaskController extends Controller
 
         if ($request['type'] === 'index') {
             if ($request['list'] === 'incomplete') {
-                return response(new TaskCollection(Auth::user()->incomplete_tasks()->paginate(1)->appends(request()->query())), 200);
+                return response(new TaskCollection(Auth::user()->incomplete_tasks()->paginate(3)->appends(request()->query())), 200);
 
             }
             else if ($request['list'] === 'completed') {
@@ -145,7 +146,36 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
-        //
+        // Updates whole Task Model not just time
+        // Can also add Notes and Checklist here
+        $validTask = $request->validate([
+            "task" => "required|string",
+            "tag_id" => "required|integer|numeric",
+            "priority" => "required|string",
+            "start_time" => "requiredIf:all_day,==,false",
+            "end_time" => "nullable|string",
+            "all_day" => "required|boolean",
+            "start_date" => "required|string",
+            "notes" => "nullable",
+            "checklist" => "nullable"
+        ]);
+        $updatedTask = (object) $request->all();
+
+        $task->update($validTask);
+
+        $task->checks()->detach();
+        foreach($updatedTask->checklist as $check) {
+            $check = Check::create([
+                "task_id" => $task->id,
+                "check" => $check["value"],
+                "completed" => false
+            ]);
+            $task->checks()->attach($check->id);
+        }
+
+        $task->save();
+
+        return response("Task Updated Successfully", 200);
     }
 
     /**

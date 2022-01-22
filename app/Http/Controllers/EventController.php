@@ -56,8 +56,9 @@ class EventController extends Controller
         $validEvent = $request->validate([
             "name" => "required|string",
             "tag_id" => "required|integer|numeric",
-            "start_time" => "required|string",
-            "end_time" => "required|string",
+            "start_time" => "requiredIf:all_day,==,false",
+            "end_time" => "requiredIf:all_day,==,false",
+            "all_day" => "required|boolean",
             "start_date" => "required|string",
             "end_date" => "required|string"
         ]);
@@ -117,37 +118,21 @@ class EventController extends Controller
             'newEnd' => 'requiredIf:allDay,==,false'
         ]);
 
-        //  // If updating an events time on the calendar
-        //  if (!$newTimes->allDay) {
-        //     $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
-        //     $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
-        //     $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
-        //     $event->end_date = Carbon::parse($newTimes->newEnd)->format('d/m/Y');
-        // // If moving an event to or from allDay section
-        // } else {
-        //     $allDayStartTime = Carbon::parse($newTimes->newStart)->format('H:i');
-        //     $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
-        //     // If moving a calendar event to all day - start time is set as date only - Carbon parsing auto sets time to 0
-        //     if ($allDayStartTime == '00:00') {
-        //         $event->start_time = null;
-        //         $event->end_time = null;
-        //         $event->end_date = null;
-        //         $event->all_day = true;
-        //     // If moving an all day event to the calendar - start time is set as date and time dropped on - Carbon parsing sets as time given
-        //     } else {
-        //         $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
-        //         $event->all_day = false;
-        //     }
-        // }
-        // // Isolated is set to true - still remains part of commitment but as it has isolated times - it will not be globally updated by commitment
-        // // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
-        // $event->isolated = true;
-        // $event->save();
-
-        $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
-        $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
-        $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
-        $event->end_date = Carbon::parse($newTimes->newEnd)->format('d/m/Y');
+        // If event is set to all day - set same start and end date and null times
+        if ($newTimes->allDay) {
+            $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+            $event->end_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+            $event->start_time = null;
+            $event->end_time = null;
+            $event->all_day = true;
+        // If event is not set to all day - start and end time are both required
+        } else {
+            $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+            $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
+            $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+            $event->end_date = Carbon::parse($newTimes->newEnd)->format('d/m/Y');
+            $event->all_day = false;
+        }
         // Isolated is set to true - still remains part of commitment but as it has isolated times - it will not be globally updated by commitment
         // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
         $event->isolated = true;
@@ -171,8 +156,9 @@ class EventController extends Controller
         $validEvent = $request->validate([
             "name" => "required|string",
             "tag_id" => "required|integer|numeric",
-            "start_time" => "required|string",
-            "end_time" => "required|string",
+            "start_time" => "requiredIf:all_day,==,false",
+            "end_time" => "requiredIf:all_day,==,false",
+            "all_day" => "required|boolean",
             "start_date" => "required|string",
             "end_date" => "required|string",
             "notes" => "nullable",
@@ -188,7 +174,7 @@ class EventController extends Controller
 
         if($differentStartTime || $differentEndTime || $differentDate) {
             $event->update($validEvent);
-            // If the updated event has a different time or date that the original values for the event - set isolated to true so it is not globally updatable by Commitment update
+            // If the updated event has a different time or date than the original values for the event - set isolated to true so it is not globally updatable by Commitment update
             // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
             $event->isolated = true;
         } else {

@@ -19,10 +19,12 @@ class CreateEventsTable extends Migration
             $table->foreignId("tag_id")->constrained()->onDelete("cascade");
             $table->foreignId("user_id")->constrained()->onDelete("cascade");
             $table->foreignId("commitment_id")->nullable()->constrained()->onDelete("cascade");
-            $table->string("start_time");
-            $table->string("end_time");
+            // time can be null if set to all day
+            $table->string("start_time")->nullable();
+            $table->string("end_time")->nullable();
             $table->string("start_date");
-            $table->string("end_date");
+            $table->string("end_date")->nullable();
+            $table->boolean("all_day");
             $table->boolean("isolated");
             $table->longText("notes")->nullable();
             $table->timestamps();

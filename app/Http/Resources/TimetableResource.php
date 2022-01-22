@@ -24,41 +24,35 @@ class TimetableResource extends JsonResource
         if (isset($this->task)) {
             $type = 'task';
             $title = $this->task;
-            // If a start date, start time and end time have been set
-            if (isset($this->start_date) && isset($this->start_time) && isset($this->end_time)) {
-                $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
-                $end_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->end_time))->format('Y-m-d H:i');
-                $all_day = false;
-            }
-            // If a start date and start time have been picked - automatically shown as an hour long on calendar
-            else if (isset($this->start_date) && isset($this->start_time)) {
-                $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
-                $end_date = $start_date;
-                $all_day = false;
-            // If a start date but no start time has been picked
-            } else if (isset($this->start_date) && !isset($this->start_time)) {
-                $start_date = Carbon::createFromFormat('d/m/Y', ($this->start_date))->format('Y-m-d');
-                $end_date = $start_date;
-                $all_day = true;
-            }
         }
         // Individual Events and Commitment Events
         else {
-            // Commitments and Events require a start date and time and end date and time
             $type = 'event';
             $title = $this->name;
-            $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
-            $end_date = Carbon::createFromFormat('d/m/Y H:i', ($this->end_date . ' ' . $this->end_time))->format('Y-m-d H:i');
-            $all_day = false;
         }
 
+        // If a start date, start time and end time have been set
+        if (isset($this->start_date) && isset($this->start_time) && isset($this->end_time)) {
+            $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
+            $end_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->end_time))->format('Y-m-d H:i');
+        }
+        // If a start date and start time have been picked but no end time - automatically shown as an hour long on calendar
+        // this applies to tasks only as events require a start and end time if not all day
+        else if (isset($this->start_date) && isset($this->start_time) && !isset($this->end_time)) {
+            $start_date = Carbon::createFromFormat('d/m/Y H:i', ($this->start_date . ' ' . $this->start_time))->format('Y-m-d H:i');
+            $end_date = $start_date;
+        // If a start date but no start time or end time has been picked - all day
+        } else if (isset($this->start_date) && !isset($this->start_time) && !isset($this->end_time)) {
+            $start_date = Carbon::createFromFormat('d/m/Y', ($this->start_date))->format('Y-m-d');
+            $end_date = $start_date;
+        }
 
         return [
             'id' => $this->id,
             'title' => $title,
             'start' => $start_date,
             'end' => $end_date,
-            'allDay' => $all_day,
+            'allDay' => $this->all_day,
             'display' => 'block',
             'backgroundColor' => $this->tag->colour,
             'borderColor' => $this->tag->colour,

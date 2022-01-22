@@ -23,6 +23,7 @@ class Event extends Model
         'end_time',
         'start_date',
         'end_date',
+        'all_day',
         'isolated',
         'notes'
     ];

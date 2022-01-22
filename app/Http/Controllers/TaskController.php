@@ -113,19 +113,22 @@ class TaskController extends Controller
             'newEnd' => 'nullable|string'
         ]);
 
+        // If task is set to all day - null times
         if ($newTimes->allDay) {
             $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
             $task->start_time = null;
             $task->end_time = null;
             $task->all_day = true;
+        // If task is not set to all day - set start date and start time - end time is not required
         } else {
+            $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
             $task->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+            // if end time provided then set as end time - but not required
             if ($newTimes->newEnd !== null) {
                 $task->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');    
             } else {
                 $task->end_time = null;
             }
-            $task->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
             $task->all_day = false;
         }
         $task->save();

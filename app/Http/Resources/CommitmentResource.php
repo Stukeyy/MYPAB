@@ -29,6 +29,7 @@ class CommitmentResource extends JsonResource
             'day' => $this->day,
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
+            'all_day' => $this->all_day,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'start_date_object' => $js_start_date_object,

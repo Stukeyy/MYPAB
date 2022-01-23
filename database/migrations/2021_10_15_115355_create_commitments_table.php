@@ -20,8 +20,10 @@ class CreateCommitmentsTable extends Migration
             $table->foreignId("user_id")->constrained()->onDelete("cascade");
             $table->string("occurance");
             $table->string("day")->nullable();
-            $table->string("start_time");
-            $table->string("end_time");
+            // time can be null if set to all day
+            $table->string("start_time")->nullable();
+            $table->string("end_time")->nullable();
+            $table->boolean("all_day");
             $table->string("start_date");
             $table->string("end_date");
             $table->timestamps();

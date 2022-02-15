@@ -67,12 +67,6 @@ class EventResource extends JsonResource
             // Date formated for element ui date picker
             $start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
 
-            $noChecklist = [[
-                'key' => 0,
-                'value' => '',
-                'error' => false
-            ]];
-
             return [
                 'id' => $this->id,
                 'name' => $this->name,

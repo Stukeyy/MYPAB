@@ -150,7 +150,7 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Event $event)
-    {
+    {   
         // Updates whole Event Model not just time
         // Can also add Notes and Checklist here
         $validEvent = $request->validate([
@@ -183,10 +183,15 @@ class EventController extends Controller
 
         $event->checks()->detach();
         foreach($updatedEvent->checklist as $check) {
+            // checks are deleted and dettached from pivot table but not from original checks table
+            // this will check if any updated checks already exist in checks table and if true - deletes before creating again
+            if (isset($check["id"])) {
+                Check::destroy($check["id"]);
+            }
             $check = Check::create([
                 "event_id" => $event->id,
                 "check" => $check["value"],
-                "completed" => false
+                "completed" => $check["completed"]
             ]);
             $event->checks()->attach($check->id);
         }
@@ -204,6 +209,12 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {   
+        // return response($event->checks());
+        // deletes checks from original checks table
+        foreach($event->checks as $check) {
+            Check::destroy($check["id"]);
+        }
+        // deletes checks from pivot table
         $event->checks()->detach();
         $event->delete();
 

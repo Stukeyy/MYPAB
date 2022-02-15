@@ -36,9 +36,13 @@ class TaskResource extends JsonResource
         } 
         else if ($type === "view") {
 
-            $carbon_start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
-            $inThePast = $carbon_start_date->isPast();
-            $daysUntil = Carbon::now()->diffInDays($carbon_start_date);
+            $hasDate = isset($this->start_date);
+            $hasTime = isset($this->start_time);
+            if ($this->start_date) {
+                $carbon_start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
+                $inThePast = $carbon_start_date->isPast();
+                $daysUntil = Carbon::now()->diffInDays($carbon_start_date);
+            }
 
             return [
                 'id' => $this->id,
@@ -46,8 +50,11 @@ class TaskResource extends JsonResource
                 'tag' => $this->tag->name,
                 'priority' => $this->priority,
                 'colour' => $this->tag->colour,
-                'inThePast' => $inThePast,
-                'daysUntil' => $daysUntil,
+                'hasDate' => $hasDate,
+                'hasTime' => $hasTime,
+                'inThePast' => ($hasDate) ? $inThePast : null,
+                'daysUntil' => ($hasDate) ? $daysUntil : null,
+                'all_day' => $this->all_day,
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,
                 'start_date' => $this->start_date,
@@ -59,14 +66,12 @@ class TaskResource extends JsonResource
         }
         else if ($type === "update") {
 
-            // Date formated for element ui date picker
-            $start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
-
-            $noChecklist = [[
-                'key' => 0,
-                'value' => '',
-                'error' => false
-            ]];
+            $hasDate = isset($this->start_date);
+            $hasTime = isset($this->start_time);
+            if ($this->start_date) {
+                // Date formated for element ui date picker
+                $start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
+            }
 
             return [
                 'id' => $this->id,
@@ -75,8 +80,11 @@ class TaskResource extends JsonResource
                 'priority' => $this->priority,
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,
+                'hasDate' => $hasDate,
+                'hasTime' => $hasTime,
                 'all_day' => $this->all_day,
-                'start_date' => $start_date,
+                'start_date' => ($hasDate) ? $start_date : '',
+                'start_date_object' => ($hasDate) ? $start_date : '',
                 'notes' => $this->notes,
                 'noChecklist' => (count($this->checks) === 0),
                 'checklist' => CheckResource::collection($this->checks)

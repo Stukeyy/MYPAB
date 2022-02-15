@@ -151,24 +151,38 @@ class TaskController extends Controller
         $validTask = $request->validate([
             "task" => "required|string",
             "tag_id" => "required|integer|numeric",
-            "priority" => "required|string",
-            "start_time" => "requiredIf:all_day,==,false",
+            "priority" => "required|in:low,medium,high",
+            "start_date" => "nullable|string",
+            "start_time" => "nullable|string",
             "end_time" => "nullable|string",
-            "all_day" => "required|boolean",
-            "start_date" => "required|string",
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);
         $updatedTask = (object) $request->all();
+        $validTask['all_day'] = false;
+
+        // format date
+        if(isset($validTask['start_date'])) {
+            $validTask['start_date'] = Carbon::createFromFormat('d/m/Y', $validTask['start_date'])->format('d/m/Y');
+            // if date selected but no time - set as all day
+            if(isset($validTask['start_date']) && !isset($validTask['start_time'])) {
+                $validTask['all_day'] = true;
+            }
+        }
 
         $task->update($validTask);
 
         $task->checks()->detach();
         foreach($updatedTask->checklist as $check) {
+            // checks are deleted and dettached from pivot table but not from original checks table
+            // this will check if any updated checks already exist in checks table and if true - deletes before creating again
+            if (isset($check["id"])) {
+                Check::destroy($check["id"]);
+            }
             $check = Check::create([
                 "task_id" => $task->id,
                 "check" => $check["value"],
-                "completed" => false
+                "completed" => $check["completed"]
             ]);
             $task->checks()->attach($check->id);
         }
@@ -185,7 +199,13 @@ class TaskController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Task $task)
-    {
+    {   
+        // deletes checks from original checks table
+        foreach($task->checks as $check) {
+            Check::destroy($check["id"]);
+        }
+        // deletes checks from pivot table
+        $task->checks()->detach();
         $task->delete();
         return response("Task Deleted Successfully", 200);
     }

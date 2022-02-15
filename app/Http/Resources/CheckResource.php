@@ -29,6 +29,7 @@ class CheckResource extends JsonResource
           return [
               "id" => $this->id,
               "value" => $this->check,
+              "completed" => $this->completed,
               "error" => false
           ];
       }

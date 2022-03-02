@@ -62,7 +62,7 @@ class User extends Authenticatable
      * @return void
      */
     public function setPasswordAttribute($value)
-    { 
+    {
         $this->attributes['password'] = Hash::make($value);
     }
 
@@ -83,7 +83,7 @@ class User extends Authenticatable
      * Get all of the commitments for the user.
      */
     public function commitments()
-    {   
+    {
         return $this->hasMany(Commitment::class)->orderBy('start_date', 'ASC');
     }
 
@@ -99,7 +99,7 @@ class User extends Authenticatable
      * Get all of the events for the user including commitments and separate events.
      */
     public function events()
-    {   
+    {
         // Returned by pivot table so must be many to many - although each event will only have one user
         return $this->belongsToMany(Event::class, 'user_events')->withTimestamps()->orderBy('start_date', 'ASC');
     }
@@ -108,21 +108,21 @@ class User extends Authenticatable
      * Get all of the tasks for the user.
      */
     public function tasks()
-    {   
+    {
         // Returned by pivot table so must be many to many - although each task will only have one user
         return $this->belongsToMany(Task::class, 'user_tasks')->withTimestamps();
     }
     public function completed_tasks()
-    {   
+    {
         return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', true)->orderBy('updated_at', 'DESC')->withTimestamps();
     }
     public function incomplete_tasks()
-    {   
+    {
         return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy('updated_at', 'DESC')->withTimestamps();
     }
     // returns the tasks which have been assigned a date to be displayed on the calendar
     public function dated_tasks()
-    {   
+    {
         return $this->belongsToMany(Task::class, 'user_tasks')->where('start_date', '!=', '')->withTimestamps();
     }
 

@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Dashboard
     Route::get('/dashboard/events', 'App\Http\Controllers\DashboardController@dashboardEvents');
     Route::get('/dashboard/tasks', 'App\Http\Controllers\DashboardController@dashboardTasks');
+    Route::get('/dashboard/chart/bar', 'App\Http\Controllers\DashboardController@dashboardBarChart');
 
     // Tags
     // Called after Tag Table colour picker - only updates colour - separate update method and needs to be called before apiResource

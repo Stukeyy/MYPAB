@@ -14,7 +14,7 @@ class TaskResource extends JsonResource
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
-    {   
+    {
 
         // type is sent from Frontend page making event request
         $type = $request["type"];
@@ -24,16 +24,19 @@ class TaskResource extends JsonResource
             return [
                 'id' => $this->id,
                 'task' => $this->task,
+                'tag_id' => $this->tag->id,
                 'tag' => $this->tag->name,
                 'priority' => $this->priority,
                 'colour' => $this->tag->colour,
                 'start_time' => $this->start_time,
                 'end_time' => $this->end_time,
                 'start_date' => $this->start_date,
-                'completed' => $this->completed
+                'completed' => $this->completed,
+                'noChecklist' => (count($this->checks) === 0),
+                'checklist' => CheckResource::collection($this->checks)
             ];
 
-        } 
+        }
         else if ($type === "view") {
 
             $hasDate = isset($this->start_date);
@@ -47,6 +50,7 @@ class TaskResource extends JsonResource
             return [
                 'id' => $this->id,
                 'task' => $this->task,
+                'tag_id' => $this->tag->id,
                 'tag' => $this->tag->name,
                 'priority' => $this->priority,
                 'colour' => $this->tag->colour,

@@ -23,8 +23,8 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {   
-        
+    {
+
         // type sent from frontend in order to return the correct resource type
         $type = $request->validate([
             "type" => "required|string"
@@ -35,7 +35,10 @@ class EventController extends Controller
             $userEvents = Auth::user()->events;
             $userTasks = Auth::user()->dated_tasks;
             $commitmentEvents = Auth::user()->commitment_events;
-            $allEvents = $userEvents->merge($userTasks)->merge($commitmentEvents);
+            $allEvents = $userEvents->concat($userTasks)->concat($commitmentEvents);
+            // MERGE COLLECTION BUG - When merging collections, records with same ID will be overwritten
+            // e.g. dated_task ID 1 is overwritten by commitment_events ID 1 and only 1 returned so not shown on calendar - using concat instead
+            // $allEvents = $userEvents->merge($userTasks)->merge($commitmentEvents);
             return response(TimetableResource::collection($allEvents), 200);
         }
         else {
@@ -93,7 +96,7 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request, Event $event)
-    {   
+    {
         // type sent from frontend in order to return the correty resource type
         $type = $request->validate([
             "type" => "required|string"
@@ -111,7 +114,7 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function updateTime(Request $request, Event $event)
-    {   
+    {
         $newTimes = (object) $request->validate([
             'allDay' => 'boolean|required',
             'newStart' => 'requiredIf:allDay,==,false',
@@ -150,7 +153,7 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Event $event)
-    {   
+    {
         // Updates whole Event Model not just time
         // Can also add Notes and Checklist here
         $validEvent = $request->validate([
@@ -208,7 +211,7 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Event $event)
-    {   
+    {
         // return response($event->checks());
         // deletes checks from original checks table
         foreach($event->checks as $check) {

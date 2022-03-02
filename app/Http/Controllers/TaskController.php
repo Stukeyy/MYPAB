@@ -30,7 +30,6 @@ class TaskController extends Controller
         if ($request['type'] === 'index') {
             if ($request['list'] === 'incomplete') {
                 return response(new TaskCollection(Auth::user()->incomplete_tasks()->paginate(3)->appends(request()->query())), 200);
-
             }
             else if ($request['list'] === 'completed') {
                 return response(new TaskCollection(Auth::user()->completed_tasks()->paginate(3)->appends(request()->query())), 200);
@@ -107,7 +106,7 @@ class TaskController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function updateTime(Request $request, Task $task)
-    {   
+    {
         $newTimes = (object) $request->validate([
             'allDay' => 'boolean|required',
             'newStart' => 'requiredIf:allDay,==,false',
@@ -126,7 +125,7 @@ class TaskController extends Controller
             $task->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
             // if end time provided then set as end time - but not required
             if ($newTimes->newEnd !== null) {
-                $task->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');    
+                $task->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
             } else {
                 $task->end_time = null;
             }
@@ -199,7 +198,7 @@ class TaskController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Task $task)
-    {   
+    {
         // deletes checks from original checks table
         foreach($task->checks as $check) {
             Check::destroy($check["id"]);

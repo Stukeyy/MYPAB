@@ -145,7 +145,7 @@ class User extends Authenticatable
     }
 
     // will return an array of all dates this week
-    private function week()
+    public function week()
     {
         $now = Carbon::now();
         $weekStart = $now->startOfWeek()->format('Y-m-d H:i');
@@ -178,6 +178,39 @@ class User extends Authenticatable
     {
         $dates = $this->week();
         return $this->belongsToMany(Task::class, 'user_tasks')->whereIn("tasks.start_date", $dates);
+    }
+
+
+    public function suggestedWorkTasks()
+    {
+        // due to duplicate tags for each user - you need to get this specific users work tag - realtionship is used over direct query
+        $workTag = $this->tags->where('name', 'Work')->first();
+        // will get work tag and all children including childrens children as all realted to genesis work
+        $workTagIDs = $workTag->childrenTagIDs();
+        // will only return the tasks that are incomplete and related to the work tags
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $workTagIDs);
+    }
+    public function suggestedWorkActivities()
+    {
+        $workTag = $this->tags->where('name', 'Work')->first();
+        $workTagIDs = $workTag->childrenTagIDs();
+        return $this->belongsToMany(Activity::class, 'user_activities')->whereIn('tag_id', $workTagIDs);
+    }
+
+    public function suggestedLifeTasks()
+    {
+        // due to duplicate tags for each user - you need to get this specific users life tag - realtionship is used over direct query
+        $lifeTag = $this->tags->where('name', 'Life')->first();
+        // will get life tag and all children including childrens children as all realted to genesis life
+        $lifeTagIDs = $lifeTag->childrenTagIDs();
+        // will only return the tasks that are incomplete and related to the life tags
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $lifeTagIDs);
+    }
+    public function suggestedLifeActivities()
+    {
+        $lifeTag = $this->tags->where('name', 'Life')->first();
+        $lifeTagIDs = $lifeTag->childrenTagIDs();
+        return $this->belongsToMany(Activity::class, 'user_activities')->whereIn('tag_id', $lifeTagIDs);
     }
 
 

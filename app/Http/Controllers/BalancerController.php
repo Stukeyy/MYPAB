@@ -6,6 +6,7 @@ use Log;
 use Auth;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use App\Models\Event;
 use App\Models\Balancer;
 use Illuminate\Http\Request;
 
@@ -21,10 +22,10 @@ class BalancerController extends Controller
     public function currentlyBalancing(Request $request)
     {
         $currentlyBalancing = Auth::user()->currentlyBalancing->last();
-        if ($currentlyBalancing) {
-            return response("Balancer Process Already Running", 409);
-        } else {
+        if ($currentlyBalancing->completed) {
             return response("No Balancer Running", 200);
+        } else {
+            return response("Balancer Process Already Running", 409);
         }
     }
 
@@ -40,21 +41,25 @@ class BalancerController extends Controller
         // currently balancing method called on mounted and if running will disable the balancer button
         // if the user goes into elements to enable and send a new balance request, this will check again
         $currentlyBalancing = Auth::user()->currentlyBalancing->last();
-        if ($currentlyBalancing) {
+        if (!$currentlyBalancing->completed) {
             return response("Balancer Process Already Running", 409);
         } else {
 
-            // $balancer = new Balancer;
-            // $balancer->user_id = Auth::user()->id;
-            // $balancer->completed = false;
-            // $balancer->save();
+            $balancer = new Balancer;
+            $balancer->user_id = Auth::user()->id;
+            $balancer->completed = false;
+            $balancer->save();
 
             try
             {
                 // balance week must be done now rather than via a queued job
                 // as any new commitments, events, tasks or tag updates will affect balance
-                $x = $this->balanceWeek();
-                return response($x, 200);
+                $this->balanceWeek();
+
+                $balancer->completed = true;
+                $balancer->save();
+
+                return response("Week Balanced", 200);
                 // return response("Balancer Started", 200);
             }
             catch(\Exception $e)
@@ -77,17 +82,99 @@ class BalancerController extends Controller
         // UPDATE - the user should be able to set these themselves on profile page
         // add column to user table - deafult on register and can update on profile page
         // blocks of calendar options outside hours, new balance can only occur between them
-        $businessHours = ((21 - 7) * 7); // currentlt 7am - 9pm Mon - Sun = 98 hours
+        $businessHours = ((21 - 7) * 7); // currently 7am - 9pm Mon - Sun = 98 hours
+        $halfOfBusinessHours = $businessHours / 2;
         // return $businessHours;
 
 
         $weeklyCommitments = Auth::user()->weeklyCommitments;
         $weeklyEvents = Auth::user()->weeklyEvents;
         $weeklyTasks = Auth::user()->weeklyTasks;
-        $week = $weeklyCommitments->concat($weeklyEvents)->concat($weeklyTasks);
-        return $week;
+        $allWeeklyEvents = $weeklyCommitments->concat($weeklyEvents)->concat($weeklyTasks);
+        // return $allWeeklyEvents;
 
-        // split into work and life and then get time
+        $currentWorkHours = 0;
+        $currentLifeHours = 0;
+        foreach($allWeeklyEvents as $event) {
+            $genesis = $event->tag->genesis();
+            // will exclude all day events as well as tasks with a start time and no end time
+            if ($event->start_time && $event->end_time) {
+                $from = Carbon::parse($event->start_time);
+                $to = Carbon::parse($event->end_time);
+                $diffInHours = $to->diffInHours($from);
+                if ($genesis->name == "Work") {
+                    $currentWorkHours += $diffInHours;
+                }
+                else if ($genesis->name == "Life") {
+                    $currentLifeHours += $diffInHours;
+                }
+            }
+        }
+
+        $workBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
+        $lifeBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
+
+        $workTasks = Auth::user()->suggestedWorkTasks->toArray();
+        $workActivities = Auth::user()->suggestedWorkActivities->toArray();
+        $lifeTasks = Auth::user()->suggestedlifeTasks->toArray();
+        $lifeActivities = Auth::user()->suggestedLifeActivities->toArray();
+        $pool = [
+            "workTasks" => $workTasks,
+            "workActivities" => $workActivities,
+            "lifeTasks" => $lifeTasks,
+            "lifeActivities" => $lifeActivities
+        ];
+        // return $pool;
+
+        $week = Auth::user()->week();
+        for($x = 0; $x <= ($workBalanceRemaining / 2); $x++) {
+            $randomDate = $week[array_rand($week)];
+            // $businessHours = ((21 - 7) * 7); // THIS WILL NEED UPDATED TO USER BUSINESS HOURS
+            // each new suggested event will be 1 hour so dont take last hour
+            $hour = rand(7, 20);
+            // if hour below 10 e.g 7, then pad with 0 e.g. 07:00, then add an hour for the end time
+            $randomStartTime = ($hour < 10) ? "0" . $hour . ":00" : $hour . ":00";
+            $randomEndTime = (($hour + 1) < 10) ? "0" . ($hour + 1) . ":00" : ($hour + 1) . ":00";
+
+            $conflict = false;
+            foreach($allWeeklyEvents as $event) {
+                if ($event->start_date == $randomDate && ($event->start_time == $randomStartTime || $event->end_time == $randomEndTime)) {
+                    $conflict = true;
+                    break;
+                }
+            }
+
+            if ($conflict) {
+                continue;
+            } else {
+                if (count($workTasks) > 0) {
+                    // need to pick tasks with highest priority
+                } else if (count($workActivities) > 0) {
+                    // need to always make sure there are at least some work activities to choose from - user cant delete all
+                    // similar to work and life but dont show user
+                    $randomWorkActivity = $workActivities[array_rand($workActivities)];
+
+                    $event = new Event;
+                    $event->name = $randomWorkActivity["name"];
+                    $event->user_id = Auth::user()->id;
+                    $event->tag_id = $randomWorkActivity["tag_id"];
+                    $event->start_time = $randomStartTime;
+                    $event->end_time = $randomEndTime;
+                    $event->start_date = $randomDate;
+                    $event->end_date = $randomDate;
+                    $event->all_day = false;
+                    $event->isolated = true;
+                    $event->suggested = true;
+                    $event->save();
+
+                    Auth::user()->events()->attach($event->id);
+
+                }
+            }
+
+        }
+
+        return "Success";
 
     }
 

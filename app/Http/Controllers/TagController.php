@@ -20,7 +20,7 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {   
+    {
 
         // type sent from frontend in order to return the correct resource type
         $type = $request->validate([
@@ -67,9 +67,9 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Tag $tag)
-    {   
+    {
         $tagFamily = [];
-        $tagFamily['ancestors'] = $tag->ancestors($tag);
+        $tagFamily['ancestors'] = $tag->ancestors();
         $tagFamily['descendants'] = new TagResource($tag);
         return response($tagFamily);
     }
@@ -83,7 +83,7 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function updateColour(Request $request, Tag $tag)
-    {   
+    {
         $newColour = (object) $request->validate([
             "colour" => "required"
         ]);
@@ -103,7 +103,7 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Tag $tag)
-    {      
+    {
         // cannot update base work or life tags - only their colour via table
         if ($tag->id !== 1 && $tag->id !== 2) {
             $validTag = $request->validate([
@@ -116,7 +116,7 @@ class TagController extends Controller
             // child options removed from parent update in frontend - also checked here - cannot make child parent of own parent
             foreach ($tag->children as $child) {
                 if ($child->id === $validTag["parent_id"]) {
-                    return response("Cannot make child parent", 500);        
+                    return response("Cannot make child parent", 500);
                 }
             }
 
@@ -136,7 +136,7 @@ class TagController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Tag $tag)
-    {    
+    {
         $tag->delete(); // all related activities, commitments, events and checks are cascaded on delete - SHOW WARNING!
         return response("Tag and Descendants Deleted Successfully", 200);
     }

@@ -67,6 +67,7 @@ class EventController extends Controller
         ]);
         $validEvent['user_id'] = Auth::id();
         $validEvent['isolated'] = true;
+        $validEvent['suggested'] = false;
 
         // Event range
         $start_date = Carbon::createFromFormat('d/m/Y', $validEvent['start_date']);
@@ -167,7 +168,8 @@ class EventController extends Controller
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);
-        $updatedEvent = (object) $request->all();
+        $validEvent['suggested'] = false;
+        $updatedEvent = (object) $validEvent;
 
         // Time formated in frontend to match time stored in backend - toLocaleDateString()
         $differentStartTime = ($updatedEvent->start_time !== $event->start_time);

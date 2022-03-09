@@ -188,7 +188,8 @@ class User extends Authenticatable
         // will get work tag and all children including childrens children as all realted to genesis work
         $workTagIDs = $workTag->childrenTagIDs();
         // will only return the tasks that are incomplete and related to the work tags
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $workTagIDs);
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $workTagIDs)
+        ->orderByRaw("case priority when 'high' then 1 when 'medium' then 2 when 'low' then 3 end");
     }
     public function suggestedWorkActivities()
     {
@@ -204,7 +205,8 @@ class User extends Authenticatable
         // will get life tag and all children including childrens children as all realted to genesis life
         $lifeTagIDs = $lifeTag->childrenTagIDs();
         // will only return the tasks that are incomplete and related to the life tags
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $lifeTagIDs);
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $lifeTagIDs)
+        ->orderByRaw("case priority when 'high' then 1 when 'medium' then 2 when 'low' then 3 end");
     }
     public function suggestedLifeActivities()
     {

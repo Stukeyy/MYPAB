@@ -79,21 +79,89 @@ class BalancerController extends Controller
      *
     */
     private function balanceWeek() {
-        // throw new \ErrorException('Error');
 
+        $workLife = ["work", "life"];
+        $balanceHours = $this->balanceHours();
+        $workBalanceRemaining = $balanceHours["workBalanceRemaining"];
+        $lifeBalanceRemaining = $balanceHours["lifeBalanceRemaining"];
+        $allWeeklyEvents = $balanceHours["allWeeklyEvents"];
+
+        // tasks need to be keyed by object ID so that once set
+        // they can be pulled from original collection so no duplicates can be made
+        // activities on other hand can be duplicated
+        $workTasks = Auth::user()->suggestedWorkTasks->keyBy('id');
+        $lifeTasks = Auth::user()->suggestedlifeTasks->keyBy('id');
+        $workActivities = Auth::user()->suggestedWorkActivities->toArray();
+        $lifeActivities = Auth::user()->suggestedLifeActivities->toArray();
+        $prep = [
+            "workBalanceRemaining" => $workBalanceRemaining,
+            "workTasks" => $workTasks,
+            "workActivities" => $workActivities,
+            "lifeBalanceRemaining" => $lifeBalanceRemaining,
+            "lifeTasks" => $lifeTasks,
+            "lifeActivities" => $lifeActivities
+        ];
+
+        $week = Auth::user()->week();
+        foreach($workLife as $wife) {
+            // reduced amount as week looked very cluttered - 25%
+            for($x = 0; $x <= ($prep[$wife . "BalanceRemaining"] / 2); $x++) {
+                $randomDate = $week[array_rand($week)];
+                // $businessHours = ((21 - 7) * 7); // THIS WILL NEED UPDATED TO USER BUSINESS HOURS
+                // each new suggested event will be 1 hour so dont take last hour
+                $hour = rand(7, 20);
+                // if hour below 10 e.g 7, then pad with 0 e.g. 07:00, then add an hour for the end time
+                $randomStartTime = ($hour < 10) ? "0" . $hour . ":00" : $hour . ":00";
+                $randomEndTime = (($hour + 1) < 10) ? "0" . ($hour + 1) . ":00" : ($hour + 1) . ":00";
+
+                $conflict = false;
+                foreach($allWeeklyEvents as $event) {
+                    if ($event->start_date == $randomDate && ($event->start_time == $randomStartTime || $event->end_time == $randomEndTime)) {
+                        $conflict = true;
+                        break;
+                    }
+                }
+
+                if ($conflict) {
+                    continue;
+                } else {
+                    if (count($prep[$wife . "Tasks"]) > 0) {
+                        $prioritisedTask = $prep[$wife . "Tasks"]->first();
+                        $event = $this->createEvent($prioritisedTask["task"], $prioritisedTask["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
+                        $prep[$wife . "Tasks"]->pull($prioritisedTask->id);
+                    } else if (count($prep[$wife . "Tasks"]) == 0 && count($prep[$wife . "Activities"]) > 0) {
+                        // need to always make sure there are at least some work activities to choose from - user cant delete all
+                        // similar to work and life but dont show user
+                        $randomWorkActivity = $prep[$wife . "Activities"][array_rand($prep[$wife . "Activities"])];
+                        $event = $this->createEvent($randomWorkActivity["name"], $randomWorkActivity["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
+
+                    }
+                }
+
+                // need to push new event to week so that no conflicts are added
+                $allWeeklyEvents->push($event);
+                Auth::user()->events()->attach($event->id);
+
+            }
+
+        }
+
+        return "Success";
+
+    }
+
+    public function balanceHours()
+    {
         // UPDATE - the user should be able to set these themselves on profile page
         // add column to user table - deafult on register and can update on profile page
         // blocks of calendar options outside hours, new balance can only occur between them
         $businessHours = ((21 - 7) * 7); // currently 7am - 9pm Mon - Sun = 98 hours
         $halfOfBusinessHours = $businessHours / 2;
-        // return $businessHours;
-
 
         $weeklyCommitments = Auth::user()->weeklyCommitments;
         $weeklyEvents = Auth::user()->weeklyEvents;
         $weeklyTasks = Auth::user()->weeklyTasks;
         $allWeeklyEvents = $weeklyCommitments->concat($weeklyEvents)->concat($weeklyTasks);
-        // return $allWeeklyEvents;
 
         $currentWorkHours = 0;
         $currentLifeHours = 0;
@@ -115,85 +183,13 @@ class BalancerController extends Controller
 
         $workBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
         $lifeBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
-        // tasks need to be keyed by object ID so that once set
-        // they can be pulled from original collection so no duplicates can be made
-        // activities on other hand can be duplicated
-        $workTasks = Auth::user()->suggestedWorkTasks->keyBy('id');
-        $workActivities = Auth::user()->suggestedWorkActivities->toArray();
-        $lifeTasks = Auth::user()->suggestedlifeTasks->keyBy('id');
-        $lifeActivities = Auth::user()->suggestedLifeActivities->toArray();
-        $prep = [
+        $balanceHours = [
             "workBalanceRemaining" => $workBalanceRemaining,
-            "workTasks" => $workTasks,
-            "workActivities" => $workActivities,
             "lifeBalanceRemaining" => $lifeBalanceRemaining,
-            "lifeTasks" => $lifeTasks,
-            "lifeActivities" => $lifeActivities,
-
+            "allWeeklyEvents" => $allWeeklyEvents
         ];
 
-        $week = Auth::user()->week();
-
-        // reduced amount as week looked very cluttered - 25%
-        for($x = 0; $x <= ($workBalanceRemaining / 2); $x++) {
-            $randomDate = $week[array_rand($week)];
-            // $businessHours = ((21 - 7) * 7); // THIS WILL NEED UPDATED TO USER BUSINESS HOURS
-            // each new suggested event will be 1 hour so dont take last hour
-            $hour = rand(7, 20);
-            // if hour below 10 e.g 7, then pad with 0 e.g. 07:00, then add an hour for the end time
-            $randomStartTime = ($hour < 10) ? "0" . $hour . ":00" : $hour . ":00";
-            $randomEndTime = (($hour + 1) < 10) ? "0" . ($hour + 1) . ":00" : ($hour + 1) . ":00";
-
-            $conflict = false;
-            foreach($allWeeklyEvents as $event) {
-                if ($event->start_date == $randomDate && ($event->start_time == $randomStartTime || $event->end_time == $randomEndTime)) {
-                    $conflict = true;
-                    break;
-                }
-            }
-
-            if ($conflict) {
-                continue;
-            } else {
-                if (count($workTasks) > 0) {
-                    // need to pick tasks with highest priority
-                    $highPriority = $workTasks->where('priority', 'high');
-                    $mediumPriority = $workTasks->where('priority', 'medium');
-                    $lowPriority = $workTasks->where('priority', 'low');
-                    if (count($highPriority) > 0) {
-                        $selectedWorkTask = $highPriority->where('priority', 'high')->first();
-                        $event = $this->createEvent($selectedWorkTask["task"], $selectedWorkTask["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
-                        // the keys of the collection are set to the IDs of the models
-                        $workTasks->pull($selectedWorkTask->id);
-                    } else if (count($mediumPriority) > 0) {
-                        $selectedWorkTask = $mediumPriority->where('priority', 'medium')->first();
-                        $event = $this->createEvent($selectedWorkTask["task"], $selectedWorkTask["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
-                        // the keys of the collection are set to the IDs of the models
-                        $workTasks->pull($selectedWorkTask->id);
-                    } else if (count($lowPriority) > 0) {
-                        $selectedWorkTask = $mediumPriority->where('priority', 'low')->first();
-                        $event = $this->createEvent($selectedWorkTask["task"], $selectedWorkTask["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
-                        // the keys of the collection are set to the IDs of the models
-                        $workTasks->pull($selectedWorkTask->id);
-                    }
-
-                } else if (count($workTasks) == 0 && count($workActivities) > 0) {
-                    // need to always make sure there are at least some work activities to choose from - user cant delete all
-                    // similar to work and life but dont show user
-                    $randomWorkActivity = $workActivities[array_rand($workActivities)];
-                    $event = $this->createEvent($randomWorkActivity["name"], $randomWorkActivity["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
-
-                }
-            }
-
-            // need to push new event to week so that no conflicts are added
-            $allWeeklyEvents->push($event);
-            Auth::user()->events()->attach($event->id);
-
-        }
-
-        return "Success";
-
+        return $balanceHours;
     }
 
     public function createEvent(String $name, Int $tagID, String $randomStartTime, String $randomEndTime, String $randomDate)
@@ -214,15 +210,4 @@ class BalancerController extends Controller
         return $event;
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Balancer  $balancer
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Balancer $balancer)
-    {
-        //
-    }
 }

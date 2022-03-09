@@ -27,22 +27,13 @@ class Tag extends Model
     // Hides pivot property in response for user() relationship
     protected $hidden = ['pivot'];
 
-    /**
-     * Get the parent of the tag.
-     */
-    public function parent()
-    {
-        // run check to make sure not work or life as these have no parent?
-        return $this->belongsTo(Tag::class);
-    }
-
     // Gets the original parent of the tag, will only ever be Work or Life
     public function genesis()
     {
         $tag = $this;
         $hasAncestors = true;
         while ($hasAncestors) {
-            // If the tag has a parent ID then continue loop unti Work or Life which wont
+            // If the tag has a parent ID then continue loop until Work or Life which wont
             // This will loop through Tag parents until Work or Life
             if ($tag->parent_id) {
                 $parent = Tag::find($tag->parent_id);
@@ -80,13 +71,23 @@ class Tag extends Model
     }
 
     /**
-     * Get the children of the tag. DESCENDANTS
+     * Get the parent of the tag.
+     */
+    public function parent()
+    {
+        // run check to make sure not work or life as these have no parent?
+        return $this->belongsTo(Tag::class);
+    }
+
+    /**
+     * Get the children of the tag - DESCENDANTS - returns children with their own children
      */
     public function children()
     {
         return $this->hasMany(Tag::class, 'parent_id', 'id')->with('children');
     }
 
+    // will return only an array of the children tag ids including work or life tag id
     public function childrenTagIDs() {
 
         $tagIDs = [];

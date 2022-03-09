@@ -180,7 +180,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Task::class, 'user_tasks')->whereIn("tasks.start_date", $dates);
     }
 
-
+    // gets all the users tasks realted to work and orders them by priority
     public function suggestedWorkTasks()
     {
         // due to duplicate tags for each user - you need to get this specific users work tag - realtionship is used over direct query
@@ -191,6 +191,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $workTagIDs)
         ->orderByRaw("case priority when 'high' then 1 when 'medium' then 2 when 'low' then 3 end");
     }
+    // gets all the users activities realted to work
     public function suggestedWorkActivities()
     {
         $workTag = $this->tags->where('name', 'Work')->first();
@@ -198,6 +199,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Activity::class, 'user_activities')->whereIn('tag_id', $workTagIDs);
     }
 
+    // gets all the users tasks realted to life and orders them by priority
     public function suggestedLifeTasks()
     {
         // due to duplicate tags for each user - you need to get this specific users life tag - realtionship is used over direct query
@@ -208,6 +210,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->whereNull('start_date')->whereIn('tag_id', $lifeTagIDs)
         ->orderByRaw("case priority when 'high' then 1 when 'medium' then 2 when 'low' then 3 end");
     }
+    // gets all the users activities realted to life
     public function suggestedLifeActivities()
     {
         $lifeTag = $this->tags->where('name', 'Life')->first();

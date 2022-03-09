@@ -22,9 +22,11 @@ class BalancerController extends Controller
     public function currentlyBalancing(Request $request)
     {
         $currentlyBalancing = Auth::user()->currentlyBalancing->last();
-        if ($currentlyBalancing->completed) {
+        // if no existing balancers found or the users last balancer is complete then return success
+        if (!$currentlyBalancing || $currentlyBalancing->completed) {
             return response("No Balancer Running", 200);
         } else {
+            // If user has a balancer currently open then return error
             return response("Balancer Process Already Running", 409);
         }
     }
@@ -41,30 +43,30 @@ class BalancerController extends Controller
         // currently balancing method called on mounted and if running will disable the balancer button
         // if the user goes into elements to enable and send a new balance request, this will check again
         $currentlyBalancing = Auth::user()->currentlyBalancing->last();
-        if (!$currentlyBalancing->completed) {
+        // If user has a balancer currently open then return error
+        if ($currentlyBalancing && !$currentlyBalancing->completed) {
             return response("Balancer Process Already Running", 409);
         } else {
 
-            $balancer = new Balancer;
-            $balancer->user_id = Auth::user()->id;
-            $balancer->completed = false;
-            $balancer->save();
+            // $balancer = new Balancer;
+            // $balancer->user_id = Auth::user()->id;
+            // $balancer->completed = false;
+            // $balancer->save();
 
             try
             {
                 // balance week must be done now rather than via a queued job
                 // as any new commitments, events, tasks or tag updates will affect balance
-                $this->balanceWeek();
+                return $this->balanceWeek();
 
-                $balancer->completed = true;
-                $balancer->save();
+                // $balancer->completed = true;
+                // $balancer->save();
 
                 return response("Week Balanced", 200);
-                // return response("Balancer Started", 200);
             }
-            catch(\Exception $e)
+            catch(\Exception $error)
             {
-                return response("Error Completing Balancer", 500);
+                return response($error, 500);
             }
 
         }
@@ -113,20 +115,26 @@ class BalancerController extends Controller
 
         $workBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
         $lifeBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
-
-        $workTasks = Auth::user()->suggestedWorkTasks->toArray();
+        // tasks need to be keyed by object ID so that once set
+        // they can be pulled from original collection so no duplicates can be made
+        // activities on other hand can be duplicated
+        $workTasks = Auth::user()->suggestedWorkTasks->keyBy('id');
         $workActivities = Auth::user()->suggestedWorkActivities->toArray();
-        $lifeTasks = Auth::user()->suggestedlifeTasks->toArray();
+        $lifeTasks = Auth::user()->suggestedlifeTasks->keyBy('id');
         $lifeActivities = Auth::user()->suggestedLifeActivities->toArray();
-        $pool = [
+        $prep = [
+            "workBalanceRemaining" => $workBalanceRemaining,
             "workTasks" => $workTasks,
             "workActivities" => $workActivities,
+            "lifeBalanceRemaining" => $lifeBalanceRemaining,
             "lifeTasks" => $lifeTasks,
-            "lifeActivities" => $lifeActivities
+            "lifeActivities" => $lifeActivities,
+
         ];
-        // return $pool;
 
         $week = Auth::user()->week();
+
+        // reduced amount as week looked very cluttered - 25%
         for($x = 0; $x <= ($workBalanceRemaining / 2); $x++) {
             $randomDate = $week[array_rand($week)];
             // $businessHours = ((21 - 7) * 7); // THIS WILL NEED UPDATED TO USER BUSINESS HOURS
@@ -149,33 +157,61 @@ class BalancerController extends Controller
             } else {
                 if (count($workTasks) > 0) {
                     // need to pick tasks with highest priority
-                } else if (count($workActivities) > 0) {
+                    $highPriority = $workTasks->where('priority', 'high');
+                    $mediumPriority = $workTasks->where('priority', 'medium');
+                    $lowPriority = $workTasks->where('priority', 'low');
+                    if (count($highPriority) > 0) {
+                        $selectedWorkTask = $highPriority->where('priority', 'high')->first();
+                        $event = $this->createEvent($selectedWorkTask["task"], $selectedWorkTask["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
+                        // the keys of the collection are set to the IDs of the models
+                        $workTasks->pull($selectedWorkTask->id);
+                    } else if (count($mediumPriority) > 0) {
+                        $selectedWorkTask = $mediumPriority->where('priority', 'medium')->first();
+                        $event = $this->createEvent($selectedWorkTask["task"], $selectedWorkTask["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
+                        // the keys of the collection are set to the IDs of the models
+                        $workTasks->pull($selectedWorkTask->id);
+                    } else if (count($lowPriority) > 0) {
+                        $selectedWorkTask = $mediumPriority->where('priority', 'low')->first();
+                        $event = $this->createEvent($selectedWorkTask["task"], $selectedWorkTask["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
+                        // the keys of the collection are set to the IDs of the models
+                        $workTasks->pull($selectedWorkTask->id);
+                    }
+
+                } else if (count($workTasks) == 0 && count($workActivities) > 0) {
                     // need to always make sure there are at least some work activities to choose from - user cant delete all
                     // similar to work and life but dont show user
                     $randomWorkActivity = $workActivities[array_rand($workActivities)];
-
-                    $event = new Event;
-                    $event->name = $randomWorkActivity["name"];
-                    $event->user_id = Auth::user()->id;
-                    $event->tag_id = $randomWorkActivity["tag_id"];
-                    $event->start_time = $randomStartTime;
-                    $event->end_time = $randomEndTime;
-                    $event->start_date = $randomDate;
-                    $event->end_date = $randomDate;
-                    $event->all_day = false;
-                    $event->isolated = true;
-                    $event->suggested = true;
-                    $event->save();
-
-                    Auth::user()->events()->attach($event->id);
+                    $event = $this->createEvent($randomWorkActivity["name"], $randomWorkActivity["tag_id"], $randomStartTime, $randomEndTime, $randomDate);
 
                 }
             }
+
+            // need to push new event to week so that no conflicts are added
+            $allWeeklyEvents->push($event);
+            Auth::user()->events()->attach($event->id);
 
         }
 
         return "Success";
 
+    }
+
+    public function createEvent(String $name, Int $tagID, String $randomStartTime, String $randomEndTime, String $randomDate)
+    {
+        $event = new Event;
+        $event->name = $name;
+        $event->user_id = Auth::user()->id;
+        $event->tag_id = $tagID;
+        $event->start_time = $randomStartTime;
+        $event->end_time = $randomEndTime;
+        $event->start_date = $randomDate;
+        $event->end_date = $randomDate;
+        $event->all_day = false;
+        $event->isolated = true;
+        $event->suggested = true;
+        $event->save();
+
+        return $event;
     }
 
 

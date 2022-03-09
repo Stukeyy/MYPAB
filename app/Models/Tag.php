@@ -90,7 +90,8 @@ class Tag extends Model
     public function childrenTagIDs() {
 
         $tagIDs = [];
-        // will get tag children including childrens children as all descendants of the genesis tag
+        array_push($tagIDs, $this->id);
+        // will get tag and children including childrens children as all descendants of the genesis tag
         $descendantTags = $this->children;
 
         // will add all tag child IDs and child children IDs to an array avoiding duplicates

@@ -28,9 +28,10 @@ class DashboardController extends Controller
     public function dashboardEvents(Request $request)
     {
         // Returned to Full Calendar Plugin - needs to be formatted differently from Event Resource
-        $userEvents = Auth::user()->events;
-        $userTasks = Auth::user()->dated_tasks;
-        $commitmentEvents = Auth::user()->commitment_events;
+        // only returns a users confirmed events, excludes currently suggested ones - should these be included for user to visualise?
+        $userEvents = Auth::user()->events->where('suggested', false);
+        $userTasks = Auth::user()->dated_tasks->where('suggested', false);
+        $commitmentEvents = Auth::user()->commitment_events->where('suggested', false);
         $allEvents = $userEvents->concat($userTasks)->concat($commitmentEvents);
         return response(TimetableResource::collection($allEvents), 200);
     }

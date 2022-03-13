@@ -21,7 +21,8 @@ class Tag extends Model
         'parent_id',
         'descendants',
         'generation',
-        'colour'
+        'colour',
+        'suggested'
     ];
 
     // Hides pivot property in response for user() relationship

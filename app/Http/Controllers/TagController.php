@@ -50,6 +50,8 @@ class TagController extends Controller
             "parent_id" => "required|integer|numeric",
             "colour" => "required"
         ]);
+        // translucent version of tag colour for balancer suggestion
+        $validTag["suggested"] = $validTag["colour"] . '80';
         // Should users be able to set their tags to globally available for other users?
         $validTag["global"] = false;
 
@@ -89,6 +91,8 @@ class TagController extends Controller
         ]);
 
         $tag->colour = $newColour->colour;
+        // translucent version of tag colour for balancer suggestion
+        $tag->suggested = $newColour->colour . '80';
         $tag->save();
 
         return response("Tag Updated Successfully", 200);
@@ -111,6 +115,8 @@ class TagController extends Controller
                 "parent_id" => "required|integer|numeric",
                 "colour" => "required"
             ]);
+            // translucent version of tag colour for balancer suggestion
+            $validTag["suggested"] = $validTag["colour"] . '80';
             // Should users be able to set their tags to globally available for other users? Maybe suggestion section instead?
 
             // child options removed from parent update in frontend - also checked here - cannot make child parent of own parent

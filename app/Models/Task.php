@@ -24,6 +24,7 @@ class Task extends Model
         'start_date',
         'all_day',
         'completed',
+        'suggested',
         'notes'
     ];
 

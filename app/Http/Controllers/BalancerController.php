@@ -58,10 +58,6 @@ class BalancerController extends Controller
                 // balance week must be done now rather than via a queued job
                 // as any new commitments, events, tasks or tag updates will affect balance
                 $this->balanceWeek();
-
-                $balancer->completed = true;
-                $balancer->save();
-
                 return response("Week Balanced", 200);
             }
             catch(\Exception $error)
@@ -221,6 +217,31 @@ class BalancerController extends Controller
         $event->save();
 
         return $event;
+    }
+
+    // confirms each suggested event which is clicked on by user in the frontend
+    public function confirmSuggestion(Event $event) {
+        $event->suggested = false;
+        $event->save();
+        return response("Suggestion Confirmed Successfully", 200);
+    }
+
+    public function finishBalance() {
+
+        // Deletes all suggested events which were not confirmed
+        $events = Auth::user()->events;
+        foreach($events as $event) {
+            if ($event->suggested) {
+                $event->delete();
+            }
+        }
+
+        // finishes balancer
+        $currentlyBalancing = Auth::user()->currentlyBalancing->last();
+        $currentlyBalancing->completed = true;
+        $currentlyBalancing->save();
+
+        return response("All Suggestions Confirmed", 200);
     }
 
 }

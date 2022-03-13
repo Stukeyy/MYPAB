@@ -93,7 +93,7 @@ class DashboardController extends Controller
                     }
                 }
             }
-            // array_push($bar["data"], $tagTime);
+
             $bar["value"] = $tagTime;
             array_push($bars, $bar);
         }

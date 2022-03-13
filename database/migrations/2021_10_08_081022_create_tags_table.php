@@ -20,6 +20,8 @@ class CreateTagsTable extends Migration
             // When parent is deleted so are children - whole way down family tree
             $table->foreignId('parent_id')->nullable()->references('id')->on('tags')->onDelete('cascade');
             $table->string('colour');
+            // translucent version of tag colour for balancer suggestion
+            $table->string('suggested');
             $table->timestamps();
         });
     }

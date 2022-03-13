@@ -15,6 +15,8 @@ class BalancerController extends Controller
 
     /**
      * Checks if user already has a balancer running
+     * balancer is only stopped when the user has confirmed all of the suggestions made
+     *
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -228,7 +230,7 @@ class BalancerController extends Controller
 
     public function finishBalance() {
 
-        // Deletes all suggested events which were not confirmed
+        // Deletes all suggested events which were not confirmed by user on frontend
         $events = Auth::user()->events;
         foreach($events as $event) {
             if ($event->suggested) {

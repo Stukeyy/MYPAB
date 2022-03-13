@@ -76,7 +76,8 @@ class DashboardController extends Controller
             $bar["itemStyle"]["color"] = $tag->colour;
             $tagTime = 0;
 
-            // get all tag events and tasks
+            // get all tag events and tasks as well as their genesis parent - work or life
+            $genesis = $tag->genesis();
             $events = $tag->events;
             $tasks = $tag->tasks;
             $allTagEvents = $events->concat($tasks);
@@ -84,8 +85,8 @@ class DashboardController extends Controller
             if($allTagEvents) {
                 // get the amount of hours of each event and task for tag and add to total tag time
                 foreach ($allTagEvents as $tagEvent) {
-                    // will exclude all day events as well as tasks with a start time and no end time
-                    if ($tagEvent->start_time && $tagEvent->end_time) {
+                    // will exclude all day events as well as tasks with a start time and no end time, also excludes currently suggested events
+                    if ($tagEvent->start_time && $tagEvent->end_time && !$tagEvent->suggested) {
                         $from = Carbon::parse($tagEvent->start_time);
                         $to = Carbon::parse($tagEvent->end_time);
                         $diffInHours = $to->diffInHours($from);
@@ -96,6 +97,14 @@ class DashboardController extends Controller
 
             $bar["value"] = $tagTime;
             array_push($bars, $bar);
+
+            // loops through all bars in the array and adds the total to the current tags genesis tag - work or life
+            // so it appears as culmination of all its sub tags
+            foreach($bars as $index => $bar) {
+                if ($bar["name"] == $genesis->name) {
+                    $bars[$index]["value"] += $tagTime;
+                }
+            }
         }
 
         $chartData = [

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
+use Log;
 use App\Models\User;
 use App\Models\Tag;
 use App\Models\Activity;
@@ -31,154 +32,108 @@ class DemoSeeder extends Seeder
 
         // WORK ##############################################################
 
+        // all BASE tags
+        $tags = [
+            "Work",
+            "Life",
+            "Education",
+            "Career",
+            "Portfolio",
+            "Skills",
+            "Physical",
+            "Social",
+            "Self",
+            "Holiday"
+        ];
+
+        // the children of each tag parent
+        $tagFamily = [
+            "Work" => [
+                "Education",
+                "Career"
+            ],
+            "Career" => [
+                "Portfolio",
+                "Skills"
+            ],
+            "Life" => [
+                "Physical",
+                "Social",
+                "Self"
+            ],
+            "Self" => [
+                "Holiday"
+            ]
+        ];
+
+        // the activities of each tag parent
+        $activityFamily = [
+            "Physical" => [
+                "Go for a run"
+            ],
+            "Self" => [
+                "Read a book",
+                "Meditate"
+            ],
+            "Social" => [
+                "Meet up with friends"
+            ],
+            "Skills" => [
+                "Learn a new skill"
+            ]
+        ];
+
         $users = User::all();
+        // generate for each user
         foreach($users as $user) {
 
-            // BASE TAGS #########################################################
-
-            $colour = $faker->hexColor();
-            $suggestedColour = $colour . '80';
-            $work = Tag::create([
-                'name' => 'Work',
-                'global' => true,
-                'colour' => $colour,
-                'suggested' => $suggestedColour
-            ]);
-            $user->tags()->attach($work->id);
-
-            $colour = $faker->hexColor();
-            $suggestedColour = $colour . '80';
-            $life = Tag::create([
-                'name' => 'Life',
-                'global' => true,
-                'colour' => $colour,
-                'suggested' => $suggestedColour
-            ]);
-            $user->tags()->attach($life->id);
-
-            // WORK ##############################################################
-
-            $colour = $faker->hexColor();
-            $suggestedColour = $colour . '80';
-            $education = Tag::create([
-                'name' => 'Education',
-                'global' => true,
-                'parent_id' => $work->id,
-                'colour' => $colour,
-                'suggested' => $suggestedColour
-            ]);
-            $user->tags()->attach($education->id);
-            $colour = $faker->hexColor();
-            $suggestedColour = $colour . '80';
-            $career = Tag::create([
-                'name' => 'Career',
-                'global' => true,
-                'parent_id' => $work->id,
-                'colour' => $colour,
-                'suggested' => $suggestedColour
-            ]);
-            $user->tags()->attach($career->id);
+            // first create all base tags
+            foreach($tags as $tag) {
+                // colour is fully opaque
+                // suggested colour is slightly translucent
                 $colour = $faker->hexColor();
                 $suggestedColour = $colour . '80';
-                $portfolio = Tag::create([
-                    'name' => 'Portfolio',
+                $newTag = Tag::create([
+                    'name' => $tag,
                     'global' => true,
-                    'parent_id' => $career->id,
                     'colour' => $colour,
                     'suggested' => $suggestedColour
                 ]);
-                $user->tags()->attach($portfolio->id);
-                $colour = $faker->hexColor();
-                $suggestedColour = $colour . '80';
-                $skills = Tag::create([
-                    'name' => 'Skills',
-                    'global' => true,
-                    'parent_id' => $career->id,
-                    'colour' => $colour,
-                    'suggested' => $suggestedColour
-                ]);
-                $user->tags()->attach($skills->id);
+                // also added to user pivot table
+                $user->tags()->attach($newTag->id);
+            }
 
-            // LIFE ##############################################################
+            // adds the parent ID to each child tag created
+            foreach($tagFamily as $parent => $children) {
+                // gets the parent of the tag by the key
+                // NOTE need to get latest tag created as same tags created for each user
+                // so need ID of most recent one made as this will belong to current user
+                $parentTag = Tag::where('name', $parent)->latest('id')->first();
+                // adds the parent ID to each child
+                foreach($children as $child) {
+                    $childTag = Tag::where('name', $child)->latest('id')->first();
+                    $childTag->parent_id = $parentTag->id;
+                    $childTag->save();
+                }
+            }
 
-            $colour = $faker->hexColor();
-            $suggestedColour = $colour . '80';
-            $physical = Tag::create([
-                'name' => 'Physical',
-                'global' => true,
-                'parent_id' => $life->id,
-                'colour' => $colour,
-                'suggested' => $suggestedColour
-            ]);
-            $user->tags()->attach($physical->id);
-            $colour = $faker->hexColor();
-            $suggestedColour = $colour . '80';
-            $social = Tag::create([
-                'name' => 'Social',
-                'global' => true,
-                'parent_id' => $life->id,
-                'colour' => $colour,
-                'suggested' => $suggestedColour
-            ]);
-            $user->tags()->attach($social->id);
-            $colour = $faker->hexColor();
-            $suggestedColour = $colour . '80';
-            $self = Tag::create([
-                'name' => 'Self',
-                'global' => true,
-                'parent_id' => $life->id,
-                'colour' => $colour,
-                'suggested' => $suggestedColour
-            ]);
-            $user->tags()->attach($self->id);
-                $colour = $faker->hexColor();
-                $suggestedColour = $colour . '80';
-                $holiday = Tag::create([
-                    'name' => 'Holiday',
-                    'global' => true,
-                    'parent_id' => $self->id,
-                    'colour' => $colour,
-                    'suggested' => $suggestedColour
-                ]);
-                $user->tags()->attach($holiday->id);
-
-            // ACTIVITIES
-
-            $activity = Activity::create([
-                'name' => 'Go for a run',
-                'global' => true,
-                'tag_id' => $physical->id
-            ]);
-            $user->activities()->attach($activity->id);
-
-            $activity = Activity::create([
-                'name' => 'Read a book',
-                'global' => true,
-                'tag_id' => $self->id
-            ]);
-            $user->activities()->attach($activity->id);
-
-            $activity = Activity::create([
-                'name' => 'Meditate',
-                'global' => true,
-                'tag_id' => $self->id
-            ]);
-            $user->activities()->attach($activity->id);
-
-
-            $activity = Activity::create([
-                'name' => 'Meet up with friends',
-                'global' => true,
-                'tag_id' => $social->id
-            ]);
-            $user->activities()->attach($activity->id);
-
-            $activity = Activity::create([
-                'name' => 'Learn a new skill',
-                'global' => true,
-                'tag_id' => $skills->id
-            ]);
-            $user->activities()->attach($activity->id);
+            // creates activities realted to each tag
+            foreach ($activityFamily as $parent => $activities) {
+                // gets the parent of the tag by the key
+                // NOTE need to get latest tag created as same tags created for each user
+                // so need ID of most recent one made as this will belong to current user
+                $parentTag = Tag::where('name', $parent)->latest('id')->first();
+                // creates each activity related to the parent tag and sets it as the parent ID
+                foreach($activities as $activity) {
+                    $activity = Activity::create([
+                        'name' => $activity,
+                        'global' => true,
+                        'tag_id' => $parentTag->id
+                    ]);
+                    // adds to user pivot table
+                    $user->activities()->attach($activity->id);
+                }
+            }
 
         }
 

@@ -107,188 +107,112 @@ class AuthController extends Controller
         return response("GOODBYE");
     }
 
-    
-    // REFACTOR THIS
+
     public function createUserTags(Object $user, Object $register) {
 
 
         // Create Tags based on Registration Sections
         $faker = \Faker\Factory::create();
-        
-        // BASE TAGS #########################################################
 
-        $work = Tag::create([
-            'name' => 'Work',
-            'global' => true,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach($work->id);
+        // all BASE tags
+        $tags = [
+            "Work",
+            "Life",
+            "Education",
+            "Career",
+            "Portfolio",
+            "Skills",
+            "Physical",
+            "Social",
+            "Self",
+            "Holiday"
+        ];
 
-        $life = Tag::create([
-            'name' => 'Life',
-            'global' => true,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach($life->id);
+        // the children of each tag parent
+        $tagFamily = [
+            "Work" => [
+                "Education",
+                "Career"
+            ],
+            "Career" => [
+                "Portfolio",
+                "Skills"
+            ],
+            "Life" => [
+                "Physical",
+                "Social",
+                "Self"
+            ],
+            "Self" => [
+                "Holiday"
+            ]
+        ];
 
-        // WORK ##############################################################
+        // the activities of each tag parent
+        $activityFamily = [
+            "Physical" => [
+                "Go for a run"
+            ],
+            "Self" => [
+                "Read a book",
+                "Meditate"
+            ],
+            "Social" => [
+                "Meet up with friends"
+            ],
+            "Skills" => [
+                "Learn a new skill"
+            ]
+        ];
 
-        $education = Tag::create([
-            'name' => 'Education',
-            'global' => true,
-            'parent_id' => $work->id,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach($education->id);
-        $career = Tag::create([
-            'name' => 'Career',
-            'global' => true,
-            'parent_id' => $work->id,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach($career->id);
-            $portfolio = Tag::create([
-                'name' => 'Portfolio',
+
+        // first create all base tags
+        foreach($tags as $tag) {
+            // colour is fully opaque
+            // suggested colour is slightly translucent
+            $colour = $faker->hexColor();
+            $suggestedColour = $colour . '80';
+            $newTag = Tag::create([
+                'name' => $tag,
                 'global' => true,
-                'parent_id' => $career->id,
-                'colour' => $faker->hexColor()
+                'colour' => $colour,
+                'suggested' => $suggestedColour
             ]);
-            $user->tags()->attach($portfolio->id);
-            $skills = Tag::create([
-                'name' => 'Skills',
-                'global' => true,
-                'parent_id' => $career->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $user->tags()->attach($skills->id);
-
-        // LIFE ##############################################################
-
-        $physical = Tag::create([
-            'name' => 'Physical',
-            'global' => true,
-            'parent_id' => $life->id,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach($physical->id);
-        $social = Tag::create([
-            'name' => 'Social',
-            'global' => true,
-            'parent_id' => $life->id,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach($social->id);
-        $self = Tag::create([
-            'name' => 'Self',
-            'global' => true,
-            'parent_id' => $life->id,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach($self->id);
-            $holiday = Tag::create([
-                'name' => 'Holiday',
-                'global' => true,
-                'parent_id' => $self->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $user->tags()->attach($holiday->id);
-
-        // ACTIVITIES
-
-        $activity = Activity::create([
-            'name' => 'Go for a run',
-            'global' => true,
-            'tag_id' => $physical->id
-        ]);
-        $user->activities()->attach($activity->id);
-        $activity = Activity::create([
-            'name' => 'Read a book',
-            'global' => true,
-            'tag_id' => $self->id
-        ]);
-        $user->activities()->attach($activity->id);
-        $activity = Activity::create([
-            'name' => 'Meditate',
-            'global' => true,
-            'tag_id' => $self->id
-        ]);
-        $user->activities()->attach($activity->id);
-        $activity = Activity::create([
-            'name' => 'Meet up with friends',
-            'global' => true,
-            'tag_id' => $social->id
-        ]);
-        $user->activities()->attach($activity->id);
-        $activity = Activity::create([
-            'name' => 'Learn a new skill',
-            'global' => true,
-            'tag_id' => $skills->id
-        ]);
-        $user->activities()->attach($activity->id);
-
-        // NEW REGISTRATION TAGS ##############################################################
-        
-        // University and Modules
-        $institution = Tag::create([
-            'name' => $register->institution,
-            'global' => false,
-            'parent_id' => $education->id,
-            'colour' => $faker->hexColor()
-        ]);
-        $user->tags()->attach([$institution->id]);
-        foreach ($register->modules as $module) {
-            $module = Tag::create([
-                'name' => $module,
-                'global' => false,
-                'parent_id' => $institution->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $user->tags()->attach([$module->id]);
+            // also added to user pivot table
+            $user->tags()->attach($newTag->id);
         }
 
-        // Company and Projects
-        if ($register->employed) {
-            $company = Tag::create([
-                'name' => $register->company,
-                'global' => false,
-                'parent_id' => $career->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $user->tags()->attach([$company->id]);
-            foreach ($register->projects as $project) {
-                $project = Tag::create([
-                    'name' => $project,
-                    'global' => false,
-                    'parent_id' => $company->id,
-                    'colour' => $faker->hexColor()
-                ]);
-                $user->tags()->attach([$module->id]);
+        // adds the parent ID to each child tag created
+        foreach($tagFamily as $parent => $children) {
+            // gets the parent of the tag by the key
+            // NOTE need to get latest tag created as same tags created for each user
+            // so need ID of most recent one made as this will belong to current user
+            $parentTag = Tag::where('name', $parent)->latest('id')->first();
+            // adds the parent ID to each child
+            foreach($children as $child) {
+                $childTag = Tag::where('name', $child)->latest('id')->first();
+                $childTag->parent_id = $parentTag->id;
+                $childTag->save();
             }
         }
 
-        // Physical Clubs
-        foreach ($register->physical as $club) {
-            $module = Tag::create([
-                'name' => $club,
-                'global' => false,
-                'parent_id' => $physical->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $user->tags()->attach([$module->id]);
+        // creates activities realted to each tag
+        foreach ($activityFamily as $parent => $activities) {
+            // gets the parent of the tag by the key
+            // NOTE need to get latest tag created as same tags created for each user
+            // so need ID of most recent one made as this will belong to current user
+            $parentTag = Tag::where('name', $parent)->latest('id')->first();
+            // creates each activity related to the parent tag and sets it as the parent ID
+            foreach($activities as $activity) {
+                $activity = Activity::create([
+                    'name' => $activity,
+                    'global' => true,
+                    'tag_id' => $parentTag->id
+                ]);
+                // adds to user pivot table
+                $user->activities()->attach($activity->id);
+            }
         }
-
-        // Social Clubs
-        foreach ($register->social as $club) {
-            $module = Tag::create([
-                'name' => $club,
-                'global' => false,
-                'parent_id' => $social->id,
-                'colour' => $faker->hexColor()
-            ]);
-            $user->tags()->attach([$module->id]);
-        }
-
-        // return true
 
     }
 

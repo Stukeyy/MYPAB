@@ -42,18 +42,23 @@ integrate:
   before_script:
     - echo "Integrate Stage"
   script:
+    # removes the old build artifacts
     - rm -r public/static
     - rm resources/views/index.blade.php
     # Personal Access Token added to account and used to access latest frontend pipeline build job artifacts
     - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30472412/jobs/artifacts/cicd/download?job=build"'
     - unzip -o artifacts.zip
+    # updates the new build artifacts
     - cp -r ./dist/static ./public
     - cp ./dist/index.html ../backend/resources/views/index.blade.php
+    # commits the new artifacts to the backend repo
     - git remote set-url origin git@gitlab.com:final-project24/backend.git
     - git remote set-url --push origin git@gitlab.com:final-project24/backend.git
     - git add .
-    - git commit -m "[ci skip] job push"
+    - git commit -m "[ci skip] new frontend build curled, integrated and committed"
     - git push origin HEAD:$CI_COMMIT_REF_NAME
+    # new updated build now included in repo, will be present when pulled on server in deploy job
+    # need to pull locally
   only:
     - cicd
 

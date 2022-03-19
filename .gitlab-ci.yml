@@ -1,55 +1,55 @@
 image: php:7.4
 
 stages:
-  # - install
-  # - lint
-  # - integrate
+  - install
+  - lint
+  - integrate
   - deploy
 
 
-install:
-  stage: install
-  image: composer:latest
-  tags:
-    - project
-  before_script:
-    - echo "Install Stage"
-    - composer
-  script:
-    - composer install
-  only:
-    - cicd
+# install:
+#   stage: install
+#   image: composer:latest
+#   tags:
+#     - project
+#   before_script:
+#     - echo "Install Stage"
+#     - composer
+#   script:
+#     - composer install
+#   only:
+#     - cicd
 
 
-lint:
-  stage: lint
-  image: composer:latest
-  tags:
-    - project
-  before_script:
-    - echo "Lint Stage"
-  script:
-    - composer require overtrue/phplint:^3.0 --dev -vvv
-    - ./vendor/bin/phplint ./ --exclude=vendor
-  only:
-    - cicd
+# lint:
+#   stage: lint
+#   image: composer:latest
+#   tags:
+#     - project
+#   before_script:
+#     - echo "Lint Stage"
+#   script:
+#     - composer require overtrue/phplint:^3.0 --dev -vvv
+#     - ./vendor/bin/phplint ./ --exclude=vendor
+#   only:
+#     - cicd
 
 
-integrate:
-  stage: integrate
-  tags:
-    - project
-  before_script:
-    - echo "Integrate Stage"
-  script:
-    - rm -r public/static
-    - rm resources/views/index.blade.php
-    - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30472412/jobs/artifacts/cicd/download?job=build"'
-    - unzip artifacts.zip
-    - cp -r ./dist/static ./public
-    - cp ./dist/index.html ../backend/resources/views/index.blade.php
-  only:
-    - cicd
+# integrate:
+#   stage: integrate
+#   tags:
+#     - project
+#   before_script:
+#     - echo "Integrate Stage"
+#   script:
+#     - rm -r public/static
+#     - rm resources/views/index.blade.php
+#     - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30472412/jobs/artifacts/cicd/download?job=build"'
+#     - unzip artifacts.zip
+#     - cp -r ./dist/static ./public
+#     - cp ./dist/index.html ../backend/resources/views/index.blade.php
+#   only:
+#     - cicd
 
 
 deploy:

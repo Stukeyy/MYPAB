@@ -5,6 +5,7 @@ stages:
   - lint
   - integrate
 
+
 install:
   stage: install
   image: composer:latest
@@ -34,13 +35,13 @@ lint:
     - cicd
 
 
-# integrate:
-#   stage: integrate
-#   tags:
-#     - rtls
-#   script:
-#     - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30538731/jobs/artifacts/cicd/download?job=build"'
-#     - unzip artifacts.zip
-#     - ls
-#   only:
-#     - cicd
+integrate:
+  stage: integrate
+  tags:
+    - project
+  script:
+    - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30472412/jobs/artifacts/cicd/download?job=build"'
+    - unzip artifacts.zip
+    - ls
+  only:
+    - cicd

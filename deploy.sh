@@ -1,5 +1,8 @@
 #!/bin/bash
 
+pwd
+ls
 cd ./project/backend
-git fetch origin
-git pull origin
+ls
+# git fetch origin
+# git pull origin

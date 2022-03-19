@@ -68,6 +68,7 @@ deploy:
     - chmod 644 ~/.ssh/known_hosts
   script:
     - ssh $EC2_USER@$EC2_IP
-    - ls
+    - cd project/backend
+    - git fetch origin
   only:
     - cicd

@@ -62,7 +62,11 @@ integrate:
     - git branch
     - git add .
     - git commit -m "[ci skip] job push"
-    - git push origin HEAD:$CI_COMMIT_REF_NAME
+    # - git push origin HEAD:$CI_COMMIT_REF_NAME
+    - git remote show origin
+    - git remote set-url --push origin git@gitlab:$CI_PROJECT_PATH
+    - git remote show origin
+    - git push --follow-tags origin HEAD:$CI_COMMIT_REF_NAME
     # - git push --repo=git@git@gitlab.com:final-project24/backend.git
   only:
     - cicd

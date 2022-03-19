@@ -1,9 +1,10 @@
 image: php:7.4
 
 stages:
-  - install
-  - lint
-  - integrate
+  # - install
+  # - lint
+  # - integrate
+  - deploy
 
 
 install:
@@ -47,5 +48,18 @@ integrate:
     - unzip artifacts.zip
     - cp -r ./dist/static ./public
     - cp ./dist/index.html ../backend/resources/views/index.blade.php
+  only:
+    - cicd
+
+
+deploy:
+  stage: deploy
+  tags:
+    - project
+  before_script:
+    - echo "Deploy Stage"
+  script:
+    - ssh -i $EC2_SSH_KEY $EC2_USER@$EC2_IP
+    - ls
   only:
     - cicd

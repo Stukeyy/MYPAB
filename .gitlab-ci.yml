@@ -59,6 +59,9 @@ integrate:
     - cp ./dist/index.html ../backend/resources/views/index.blade.php
     - ls resources/views
     - git status
+    - git add .
+    - git commit -m "[ci skip] job push"
+    - git push -u $CI_BUILD_REF_NAME
   only:
     - cicd
 

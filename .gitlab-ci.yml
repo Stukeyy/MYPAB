@@ -61,7 +61,7 @@ integrate:
     - git status
     - git add .
     - git commit -m "[ci skip] job push"
-    - git push -u $CI_BUILD_REF_NAME
+    - git push cicd HEAD:cicd
   only:
     - cicd
 

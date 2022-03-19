@@ -58,6 +58,7 @@ integrate:
     - ls resources/views
     - cp ./dist/index.html ../backend/resources/views/index.blade.php
     - ls resources/views
+    - git status
   only:
     - cicd
 

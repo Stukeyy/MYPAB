@@ -1,0 +1,60 @@
+image: php:7.4
+
+stages:
+  - install
+  - lint
+  - integrate
+
+install:
+  stage: install
+  image: composer:latest
+  tags:
+    - project
+  before_script:
+    - echo "Install Stage"
+    - composer
+  script:
+    - echo $TEST
+    - composer install
+  only:
+    - cicd
+
+
+lint:
+  stage: lint
+  image: composer:latest
+  tags:
+    - rtls
+  before_script:
+    - echo "Lint Stage"
+  script:
+    - composer require overtrue/phplint:^3.0 --dev -vvv
+    - ./vendor/bin/phplint ./ --exclude=vendor
+  only:
+    - cicd
+
+
+docker:
+  stage: docker
+  image: docker:19.03.12
+  tags:
+    - rtls
+  before_script:
+    - echo "Docker Stage"
+  script:
+    # - docker-compose build
+    - docker build -f ./docker/laravel/Dockerfile .
+  only:
+    - cicd
+
+
+# integrate:
+#   stage: integrate
+#   tags:
+#     - rtls
+#   script:
+#     - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30538731/jobs/artifacts/cicd/download?job=build"'
+#     - unzip artifacts.zip
+#     - ls
+#   only:
+#     - cicd

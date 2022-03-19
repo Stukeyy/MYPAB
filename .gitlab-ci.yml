@@ -67,7 +67,6 @@ deploy:
     - ssh-keyscan $EC2_IP >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
   script:
-    - ssh $EC2_USER@$EC2_IP
-    - pwd
+    - ssh $EC2_USER@$EC2_IP "/bin/bash -s " < deploy.sh
   only:
     - cicd

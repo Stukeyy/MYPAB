@@ -61,7 +61,7 @@ integrate:
     - git status
     - git add .
     - git commit -m "[ci skip] job push"
-    - git push cicd HEAD:cicd
+    - git push cicd HEAD:origin/cicd
   only:
     - cicd
 

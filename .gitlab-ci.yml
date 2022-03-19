@@ -15,7 +15,6 @@ install:
     - echo "Install Stage"
     - composer
   script:
-    - echo $TEST
     - composer install
   only:
     - cicd
@@ -39,16 +38,14 @@ integrate:
   stage: integrate
   tags:
     - project
+  before_script:
+    - echo "Integrate Stage"
   script:
-    - ls public
     - rm -r public/static
-    - ls resources/views
     - rm resources/views/index.blade.php
     - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30472412/jobs/artifacts/cicd/download?job=build"'
     - unzip artifacts.zip
     - cp -r ./dist/static ./public
-    - cp -r ./dist/index.html ../backend/resources/views/index.blade.php
-    - ls public
-    - ls resources/views
+    - cp ./dist/index.html ../backend/resources/views/index.blade.php
   only:
     - cicd

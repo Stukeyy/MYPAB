@@ -34,20 +34,6 @@ lint:
     - cicd
 
 
-docker:
-  stage: docker
-  image: docker:19.03.12
-  tags:
-    - rtls
-  before_script:
-    - echo "Docker Stage"
-  script:
-    # - docker-compose build
-    - docker build -f ./docker/laravel/Dockerfile .
-  only:
-    - cicd
-
-
 # integrate:
 #   stage: integrate
 #   tags:

@@ -24,7 +24,7 @@ lint:
   stage: lint
   image: composer:latest
   tags:
-    - rtls
+    - project
   before_script:
     - echo "Lint Stage"
   script:

@@ -58,8 +58,11 @@ integrate:
     - ls resources/views
     - cp ./dist/index.html ../backend/resources/views/index.blade.php
     - ls resources/views
-    - git status
+    - git remote -v
+    - git remote set-url origin git@gitlab.com:final-project24/backend.git
+    - git remote -v
     - git checkout cicd
+    - git status
     - git branch
     - git add .
     - git commit -m "[ci skip] job push"

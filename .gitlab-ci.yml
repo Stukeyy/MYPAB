@@ -58,9 +58,9 @@ integrate:
     - ls resources/views
     - cp ./dist/index.html ../backend/resources/views/index.blade.php
     - ls resources/views
-    # - git remote -v
-    # - git remote set-url origin git@gitlab.com:final-project24/backend.git
-    # - git remote set-url --push origin git@gitlab.com:final-project24/backend.git
+    - git remote -v
+    - git remote set-url origin git@gitlab.com:final-project24/backend.git
+    - git remote set-url --push origin git@gitlab.com:final-project24/backend.git
     # - git remote -v
     # - git status
     # - git branch
@@ -75,7 +75,7 @@ integrate:
     # - git remote show origin
     # - git push --follow-tags origin HEAD:$CI_COMMIT_REF_NAME
     # # - git push --repo=git@git@gitlab.com:final-project24/backend.git
-    - git remote rm origin && git remote add origin "git@$GITLAB_URL:${CI_PROJECT_PATH}.git"
+    # - git remote rm origin && git remote add origin "git@$GITLAB_URL:${CI_PROJECT_PATH}.git"
     - git add .
     - git commit -m "[ci skip] job push"
     - git push origin HEAD:$CI_COMMIT_REF_NAME

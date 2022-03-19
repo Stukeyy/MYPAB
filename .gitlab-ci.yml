@@ -60,9 +60,10 @@ integrate:
     - ls resources/views
     - git status
     - git branch
-    # - git add .
-    # - git commit -m "[ci skip] job push"
-    # - git push cicd HEAD:origin/cicd
+    - git add .
+    - git commit -m "[ci skip] job push"
+    - git push origin HEAD:$CI_COMMIT_REF_NAME
+    # - git push --repo=git@git@gitlab.com:final-project24/backend.git
   only:
     - cicd
 

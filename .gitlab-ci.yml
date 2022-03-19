@@ -59,10 +59,12 @@ integrate:
     - cp ./dist/index.html ../backend/resources/views/index.blade.php
     - ls resources/views
     - git status
+    - git checkout cicd
     - git branch
     - git add .
     - git commit -m "[ci skip] job push"
-    - git push origin $CI_COMMIT_REF_NAME
+    # - git push origin $CI_COMMIT_REF_NAME
+    - git push origin cicd
     # - git push -u origin cicd
     # # - git push origin HEAD:$CI_COMMIT_REF_NAME
     # - git remote show origin

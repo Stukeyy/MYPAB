@@ -44,6 +44,7 @@ integrate:
   script:
     - rm -r public/static
     - rm resources/views/index.blade.php
+    # Personal Access Token added to account and used to access latest frontend pipeline build job artifacts
     - 'curl --location --output artifacts.zip --header "PRIVATE-TOKEN: ${TOKEN}" --request GET "https://gitlab.com/api/v4/projects/30472412/jobs/artifacts/cicd/download?job=build"'
     - unzip artifacts.zip
     - cp -r ./dist/static ./public
@@ -60,13 +61,22 @@ deploy:
   before_script:
     - echo "Deploy Stage"
     - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
+    # checks if ssh-agent is already installed and if not, then install it
     - eval $(ssh-agent -s)
+    # starts ssh-agent
     - echo "$EC2_SSH_KEY" | tr -d '\r' | ssh-add -
+    # adds ssh private key stored in variable EC2_SSH_KEY to agent store
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
+    # creates .ssh directory and assign correct permissions
     - ssh-keyscan $EC2_IP >> ~/.ssh/known_hosts
+    # checks public key on remote server using IP address stored in EC2_IP variable and adds it to known hosts.
+    # It is protecting from men-in-the-middle attack and is necessary to work, otherwise the job will fail.
     - chmod 644 ~/.ssh/known_hosts
+    # assign correct permissions
   script:
     - ssh $EC2_USER@$EC2_IP "/bin/bash -s " < deploy.sh
+    # when before script is complete and ssh connection from runner to server has been established
+    # connect to the server and run deploy script - fetches and pulls changes
   only:
     - cicd

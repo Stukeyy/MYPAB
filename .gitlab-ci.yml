@@ -53,11 +53,19 @@ stages:
 
 
 deploy:
+  image: alpine:latest
   stage: deploy
   tags:
     - project
   before_script:
     - echo "Deploy Stage"
+    - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )'
+    - eval $(ssh-agent -s)
+    - echo "$EC2_SSH_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $EC2_IP >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
     - ssh -i $EC2_SSH_KEY $EC2_USER@$EC2_IP
     - ls

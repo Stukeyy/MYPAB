@@ -19,7 +19,7 @@ install:
   script:
     - composer install
   only:
-    - cicd
+    - newpipe
 
 
 lint:
@@ -33,7 +33,7 @@ lint:
     - composer require overtrue/phplint:^3.0 --dev -vvv
     - ./vendor/bin/phplint ./ --exclude=vendor
   only:
-    - cicd
+    - newpipe
 
 # triggers the frontend project pipeline which will connect to EC2 server pull down latest changes for both front and back, then build and integrate
 trigger:

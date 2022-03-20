@@ -71,7 +71,7 @@ trigger:
 #   only:
 #     - cicd
 
-
+# deployed by frontend instead which is triggered by backend, frontend will then connect and pull latest changes on server so both up to date
 # deploy:
 #   image: alpine:latest
 #   stage: deploy

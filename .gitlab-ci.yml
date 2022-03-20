@@ -8,33 +8,34 @@ stages:
   - trigger
 
 
-# install:
-#   stage: install
-#   image: composer:latest
-#   tags:
-#     - project
-#   before_script:
-#     - echo "Install Stage"
-#     - composer
-#   script:
-#     - composer install
-#   only:
-#     - cicd
+install:
+  stage: install
+  image: composer:latest
+  tags:
+    - project
+  before_script:
+    - echo "Install Stage"
+    - composer
+  script:
+    - composer install
+  only:
+    - cicd
 
 
-# lint:
-#   stage: lint
-#   image: composer:latest
-#   tags:
-#     - project
-#   before_script:
-#     - echo "Lint Stage"
-#   script:
-#     - composer require overtrue/phplint:^3.0 --dev -vvv
-#     - ./vendor/bin/phplint ./ --exclude=vendor
-#   only:
-#     - cicd
+lint:
+  stage: lint
+  image: composer:latest
+  tags:
+    - project
+  before_script:
+    - echo "Lint Stage"
+  script:
+    - composer require overtrue/phplint:^3.0 --dev -vvv
+    - ./vendor/bin/phplint ./ --exclude=vendor
+  only:
+    - cicd
 
+# triggers the frontend project pipeline which will connect to EC2 server pull down latest changes for both front and back, then build and integrate
 trigger:
   stage: trigger
   trigger:
@@ -42,6 +43,7 @@ trigger:
     branch: newpipe
 
 
+# do not need to do anymore as once all recent changes pushed, will trigger frontend project pipeline which will connect to EC2 server pull down latest changes for both front and back, then build and integrate
 # integrate:
 #   stage: integrate
 #   tags:

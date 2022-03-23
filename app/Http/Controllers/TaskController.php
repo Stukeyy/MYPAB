@@ -54,6 +54,7 @@ class TaskController extends Controller
             "end_time" => "nullable|string"
         ]);
         $validTask['user_id'] = Auth::id();
+        $validTask['suggested'] = false;
         $validTask['completed'] = false;
         $validTask['all_day'] = false;
 

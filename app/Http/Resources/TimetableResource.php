@@ -19,7 +19,7 @@ class TimetableResource extends JsonResource
         // Event format to be displayed by FullCalendar plugin
         // Merged collection passed to resource is made up of 3 different models
         // individual events, commitment events and user tasks
-        
+
         // Tasks
         if (isset($this->task)) {
             $type = 'task';
@@ -47,6 +47,14 @@ class TimetableResource extends JsonResource
             $end_date = $start_date;
         }
 
+        // If the event or task has been generated in the balancer, then show the suggested tag colour
+        // which is a translucent version of the same colour to identify it is suggested and temporary until confirmation
+        if ($this->suggested) {
+            $colour = $this->tag->suggested;
+        } else {
+            $colour = $this->tag->colour;
+        }
+
         return [
             'id' => $this->id,
             'title' => $title,
@@ -54,9 +62,11 @@ class TimetableResource extends JsonResource
             'end' => $end_date,
             'allDay' => $this->all_day,
             'display' => 'block',
-            'backgroundColor' => $this->tag->colour,
-            'borderColor' => $this->tag->colour,
-            'type' => $type
+            'backgroundColor' => $colour,
+            'borderColor' => $colour,
+            'type' => $type,
+            'suggested' => $this->suggested,
+            'colour' => $this->tag->colour
         ];
 
     }

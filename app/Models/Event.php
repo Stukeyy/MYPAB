@@ -25,6 +25,7 @@ class Event extends Model
         'end_date',
         'all_day',
         'isolated',
+        'suggested',
         'notes'
     ];
 

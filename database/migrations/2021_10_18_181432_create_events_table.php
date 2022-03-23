@@ -26,6 +26,7 @@ class CreateEventsTable extends Migration
             $table->string("end_date")->nullable();
             $table->boolean("all_day");
             $table->boolean("isolated");
+            $table->boolean("suggested")->default(0);
             $table->longText("notes")->nullable();
             $table->timestamps();
         });

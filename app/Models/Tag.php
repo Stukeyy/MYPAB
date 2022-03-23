@@ -21,28 +21,40 @@ class Tag extends Model
         'parent_id',
         'descendants',
         'generation',
-        'colour'
+        'colour',
+        'suggested'
     ];
 
     // Hides pivot property in response for user() relationship
     protected $hidden = ['pivot'];
 
-    /**
-     * Get the parent of the tag.
-     */
-    public function parent()
-    {   
-        // run check to make sure not work or life as these have no parent?
-        return $this->belongsTo(Tag::class);
+    // Gets the original parent of the tag, will only ever be Work or Life
+    public function genesis()
+    {
+        $tag = $this;
+        $hasAncestors = true;
+        while ($hasAncestors) {
+            // If the tag has a parent ID then continue loop until Work or Life which wont
+            // This will loop through Tag parents until Work or Life
+            if ($tag->parent_id) {
+                $parent = Tag::find($tag->parent_id);
+                $tag = $parent;
+            }
+            else {
+                $hasAncestors = false;
+                return $tag;
+            }
+        }
     }
 
     /**
-     * Get the ancestors of the tag.
+     * Get all ancestors of the tag.
      */
-    public function ancestors(Tag $tag)
-    {       
+    public function ancestors()
+    {
         $ancestors = [];
 
+        $tag = $this;
         $hasAncestors = true;
         while ($hasAncestors) {
             // If the tag has a parent ID - push to ancestors array and set as new current tag
@@ -56,24 +68,55 @@ class Tag extends Model
                 $hasAncestors = false;
             }
         }
-        
         return array_reverse($ancestors);
-
     }
 
     /**
-     * Get the children of the tag.
+     * Get the parent of the tag.
+     */
+    public function parent()
+    {
+        // run check to make sure not work or life as these have no parent?
+        return $this->belongsTo(Tag::class);
+    }
+
+    /**
+     * Get the children of the tag - DESCENDANTS - returns children with their own children
      */
     public function children()
     {
-        return $this->hasMany(Tag::class, 'parent_id', 'id');
+        return $this->hasMany(Tag::class, 'parent_id', 'id')->with('children');
+    }
+
+    // will return only an array of the children tag ids including work or life tag id
+    public function childrenTagIDs() {
+
+        $tagIDs = [];
+        array_push($tagIDs, $this->id);
+        // will get tag and children including childrens children as all descendants of the genesis tag
+        $descendantTags = $this->children;
+
+        // will add all tag child IDs and child children IDs to an array avoiding duplicates
+        foreach ($descendantTags as $tag) {
+            if (!in_array($tag->id, $tagIDs)) {
+                array_push($tagIDs, $tag->id);
+            }
+            if ($tag->children) {
+                foreach ($tag->children as $child) {
+                    if (!in_array($child->id, $tagIDs)) {
+                        array_push($tagIDs, $child->id);
+                    }
+                }
+            }
+        }
+        return $tagIDs;
     }
 
     /**
      * Get the user that the tag belongs to.
      */
     public function user()
-    {   
+    {
         // Returned by pivot table so must be many to many - will only return 1 user for each
         return $this->belongsToMany(User::class, 'user_tags')->withTimestamps();
     }

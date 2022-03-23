@@ -29,10 +29,10 @@ class TaskController extends Controller
 
         if ($request['type'] === 'index') {
             if ($request['list'] === 'incomplete') {
-                return response(new TaskCollection(Auth::user()->incomplete_tasks()->paginate(3)->appends(request()->query())), 200);
+                return response(new TaskCollection(Auth::user()->incomplete_tasks()->paginate(10)->appends(request()->query())), 200);
             }
             else if ($request['list'] === 'completed') {
-                return response(new TaskCollection(Auth::user()->completed_tasks()->paginate(3)->appends(request()->query())), 200);
+                return response(new TaskCollection(Auth::user()->completed_tasks()->paginate(10)->appends(request()->query())), 200);
             }
         }
     }

@@ -43,7 +43,7 @@ class EventController extends Controller
         }
         else {
             // Only returns the users single events - doesnt include commitment events
-            return response(new EventCollection(Auth::user()->events()->paginate(3)->appends(request()->query())), 200);
+            return response(new EventCollection(Auth::user()->events()->paginate(10)->appends(request()->query())), 200);
         }
 
     }

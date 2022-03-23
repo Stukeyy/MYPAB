@@ -54,6 +54,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Activities
     Route::apiResource('/activities', 'App\Http\Controllers\ActivityController');
 
+    // Balancer
+    Route::get('/balancer/running', 'App\Http\Controllers\BalancerController@currentlyBalancing');
+    Route::get('/balancer/start', 'App\Http\Controllers\BalancerController@newBalance');
+    Route::put('/balancer/suggestion/confirm/{event}', 'App\Http\Controllers\BalancerController@confirmSuggestion');
+    Route::get('/balancer/finish', 'App\Http\Controllers\BalancerController@finishBalance');
+
 });
 
 // Logout

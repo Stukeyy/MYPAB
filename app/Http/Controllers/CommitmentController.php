@@ -23,7 +23,7 @@ class CommitmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {   
+    {
         return response(new CommitmentCollection(Auth::user()->commitments()->paginate(3)), 200);
     }
 
@@ -34,7 +34,7 @@ class CommitmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {    
+    {
 
         $validCommitment = $request->validate([
             "name" => "required|string",
@@ -52,7 +52,7 @@ class CommitmentController extends Controller
         $validCommitment['id'] = $newCommitment->id;
 
         $this->createEvents($validCommitment);
-        
+
         return response('Commitment Added Successfully', 200);
     }
 
@@ -95,9 +95,10 @@ class CommitmentController extends Controller
             $validCommitment["end_date"] = $event;
             // isolated is set to true if event is individually updated - no longer globally updated by commitment
             $validCommitment["isolated"] = false;
+            $validCommitment["suggested"] = false;
             $event = Event::create($validCommitment);
             $commitment->events()->attach($event->id);
-            // Auth::user()->events()->attach($event->id); 
+            // Auth::user()->events()->attach($event->id);
             // Not added to user_events table as this is for individual events only
             // Instead added to commitment_events table and merged with user_events instead
         }
@@ -146,7 +147,7 @@ class CommitmentController extends Controller
             }
         }
         return $events;
-        
+
     }
 
     /**
@@ -168,7 +169,7 @@ class CommitmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Commitment $commitment)
-    {   
+    {
         // When updating commitment meta data - update all assoicated events
         // If the commitment time is being updated - only update events that arent isolated
 
@@ -235,7 +236,7 @@ class CommitmentController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Commitment $commitment)
-    {   
+    {
         $commitment->delete(); // all related events and checks are deleted
         return response("Commitment and Events Deleted Successfully", 200);
     }

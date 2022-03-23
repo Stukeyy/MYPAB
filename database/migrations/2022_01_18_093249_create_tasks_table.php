@@ -24,6 +24,7 @@ class CreateTasksTable extends Migration
             $table->string("start_date")->nullable();
             $table->boolean("all_day");
             $table->boolean("completed");
+            $table->boolean("suggested");
             $table->longText("notes")->nullable();
             $table->timestamps();
         });

@@ -41,8 +41,9 @@ class CommitmentController extends Controller
             "tag_id" => "required|integer|numeric",
             "occurance" => "required|string",
             "day" => "requiredIf:occurance, !=, daily",
-            "start_time" => "required|string",
-            "end_time" => "required|string",
+            "start_time" => "requiredIf:all_day,==,false",
+            "end_time" => "requiredIf:all_day,==,false",
+            "all_day" => "required|boolean",
             "start_date" => "required|string",
             "end_date" => "required|string",
         ]);
@@ -176,8 +177,9 @@ class CommitmentController extends Controller
             "tag_id" => "required|integer|numeric",
             "occurance" => "required|string",
             "day" => "requiredIf:occurance, !=, daily",
-            "start_time" => "required|string",
-            "end_time" => "required|string",
+            "start_time" => "requiredIf:all_day,==,false",
+            "end_time" => "requiredIf:all_day,==,false",
+            "all_day" => "required|boolean",
             "start_date" => "required|string",
             "end_date" => "required|string",
         ]);
@@ -213,6 +215,7 @@ class CommitmentController extends Controller
                     $event->tag_id = $validCommitment["tag_id"];
                     $event->start_time = $validCommitment["start_time"];
                     $event->end_time = $validCommitment["end_time"];
+                    $event->all_day = $validCommitment["all_day"];
                     $event->save();
                 }
             }

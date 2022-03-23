@@ -23,8 +23,8 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {   
-        
+    {
+
         // type sent from frontend in order to return the correct resource type
         $type = $request->validate([
             "type" => "required|string"
@@ -33,8 +33,12 @@ class EventController extends Controller
         if ($request['type'] === 'timetable') {
             // Returned to Full Calendar Plugin - needs to be formatted differently from Event Resource
             $userEvents = Auth::user()->events;
+            $userTasks = Auth::user()->dated_tasks;
             $commitmentEvents = Auth::user()->commitment_events;
-            $allEvents = $userEvents->merge($commitmentEvents);
+            $allEvents = $userEvents->concat($userTasks)->concat($commitmentEvents);
+            // MERGE COLLECTION BUG - When merging collections, records with same ID will be overwritten
+            // e.g. dated_task ID 1 is overwritten by commitment_events ID 1 and only 1 returned so not shown on calendar - using concat instead
+            // $allEvents = $userEvents->merge($userTasks)->merge($commitmentEvents);
             return response(TimetableResource::collection($allEvents), 200);
         }
         else {
@@ -55,8 +59,9 @@ class EventController extends Controller
         $validEvent = $request->validate([
             "name" => "required|string",
             "tag_id" => "required|integer|numeric",
-            "start_time" => "required|string",
-            "end_time" => "required|string",
+            "start_time" => "requiredIf:all_day,==,false",
+            "end_time" => "requiredIf:all_day,==,false",
+            "all_day" => "required|boolean",
             "start_date" => "required|string",
             "end_date" => "required|string"
         ]);
@@ -91,7 +96,7 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Request $request, Event $event)
-    {   
+    {
         // type sent from frontend in order to return the correty resource type
         $type = $request->validate([
             "type" => "required|string"
@@ -109,16 +114,28 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function updateTime(Request $request, Event $event)
-    {   
+    {
         $newTimes = (object) $request->validate([
-            'newStart' => 'required',
-            'newEnd' => 'required'
+            'allDay' => 'boolean|required',
+            'newStart' => 'requiredIf:allDay,==,false',
+            'newEnd' => 'requiredIf:allDay,==,false'
         ]);
 
-        $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
-        $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
-        $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
-        $event->end_date = Carbon::parse($newTimes->newEnd)->format('d/m/Y');
+        // If event is set to all day - set same start and end date and null times
+        if ($newTimes->allDay) {
+            $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+            $event->end_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+            $event->start_time = null;
+            $event->end_time = null;
+            $event->all_day = true;
+        // If event is not set to all day - start and end time are both required
+        } else {
+            $event->start_time = Carbon::parse($newTimes->newStart)->format('H:i');
+            $event->end_time = Carbon::parse($newTimes->newEnd)->format('H:i');
+            $event->start_date = Carbon::parse($newTimes->newStart)->format('d/m/Y');
+            $event->end_date = Carbon::parse($newTimes->newEnd)->format('d/m/Y');
+            $event->all_day = false;
+        }
         // Isolated is set to true - still remains part of commitment but as it has isolated times - it will not be globally updated by commitment
         // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
         $event->isolated = true;
@@ -142,8 +159,9 @@ class EventController extends Controller
         $validEvent = $request->validate([
             "name" => "required|string",
             "tag_id" => "required|integer|numeric",
-            "start_time" => "required|string",
-            "end_time" => "required|string",
+            "start_time" => "requiredIf:all_day,==,false",
+            "end_time" => "requiredIf:all_day,==,false",
+            "all_day" => "required|boolean",
             "start_date" => "required|string",
             "end_date" => "required|string",
             "notes" => "nullable",
@@ -159,7 +177,7 @@ class EventController extends Controller
 
         if($differentStartTime || $differentEndTime || $differentDate) {
             $event->update($validEvent);
-            // If the updated event has a different time or date that the original values for the event - set isolated to true so it is not globally updatable by Commitment update
+            // If the updated event has a different time or date than the original values for the event - set isolated to true so it is not globally updatable by Commitment update
             // will still be deleted if commitment is - should it be made as separate event from commitment and detached? - wont be removed when deleted
             $event->isolated = true;
         } else {
@@ -168,10 +186,15 @@ class EventController extends Controller
 
         $event->checks()->detach();
         foreach($updatedEvent->checklist as $check) {
+            // checks are deleted and dettached from pivot table but not from original checks table
+            // this will check if any updated checks already exist in checks table and if true - deletes before creating again
+            if (isset($check["id"])) {
+                Check::destroy($check["id"]);
+            }
             $check = Check::create([
                 "event_id" => $event->id,
                 "check" => $check["value"],
-                "completed" => false
+                "completed" => $check["completed"]
             ]);
             $event->checks()->attach($check->id);
         }
@@ -188,7 +211,13 @@ class EventController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy(Event $event)
-    {   
+    {
+        // return response($event->checks());
+        // deletes checks from original checks table
+        foreach($event->checks as $check) {
+            Check::destroy($check["id"]);
+        }
+        // deletes checks from pivot table
         $event->checks()->detach();
         $event->delete();
 

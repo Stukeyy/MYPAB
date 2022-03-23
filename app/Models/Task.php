@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Event extends Model
+class Task extends Model
 {
     use HasFactory;
 
@@ -15,16 +15,15 @@ class Event extends Model
      * @var string[]
      */
     protected $fillable = [
-        'name',
+        'task',
         'tag_id',
         'user_id',
-        'commitment_id',
+        'priority',
         'start_time',
         'end_time',
         'start_date',
-        'end_date',
         'all_day',
-        'isolated',
+        'completed',
         'notes'
     ];
 
@@ -38,19 +37,18 @@ class Event extends Model
     ];
 
     /**
-     * Get the checks that belong to the Event.
+     * Get the checks that belong to the Task.
      */
     public function checks()
     {
-        return $this->belongsToMany(Check::class, 'event_checks')->orderBy('id')->withTimestamps();
+        return $this->belongsToMany(Check::class, 'task_checks')->orderBy('id')->withTimestamps();
     }
 
     /**
-     * Get the tag that the event belongs to.
+     * Get the tag that the task belongs to.
      */
     public function tag()
     {
         return $this->belongsTo(Tag::class);
     }
-
 }

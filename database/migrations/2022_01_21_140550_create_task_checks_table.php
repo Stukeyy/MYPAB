@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateChecksTable extends Migration
+class CreateTaskChecksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CreateChecksTable extends Migration
      */
     public function up()
     {
-        Schema::create('checks', function (Blueprint $table) {
+        Schema::create('task_checks', function (Blueprint $table) {
             $table->id();
-            // $table->foreignId('event_id')->nullable()->constrained()->onDelete("cascade");
-            // $table->foreignId('task_id')->nullable()->constrained()->onDelete("cascade");
-            $table->string("check");
-            $table->boolean("completed");
+            $table->foreignId('check_id')->constrained()->onDelete("cascade");
+            $table->foreignId('task_id')->constrained()->onDelete("cascade");
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ class CreateChecksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('checks');
+        Schema::dropIfExists('task_checks');
     }
 }

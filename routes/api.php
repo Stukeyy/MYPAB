@@ -28,6 +28,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/user', 'App\Http\Controllers\DashboardController@user');
     Route::get('/authUser', 'App\Http\Controllers\Auth\AuthController@authUser');
 
+    // Dashboard
+    Route::get('/dashboard/events', 'App\Http\Controllers\DashboardController@dashboardEvents');
+    Route::get('/dashboard/tasks', 'App\Http\Controllers\DashboardController@dashboardTasks');
+    Route::get('/dashboard/chart/bar', 'App\Http\Controllers\DashboardController@dashboardBarChart');
+
     // Tags
     // Called after Tag Table colour picker - only updates colour - separate update method and needs to be called before apiResource
     Route::put('/tags/{tag}/colour', 'App\Http\Controllers\TagController@updateColour');
@@ -40,6 +45,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('/events', 'App\Http\Controllers\EventController');
     // Checks
     Route::apiResource('/checks', 'App\Http\Controllers\CheckController');
+    // Tasks
+    // Called after Full Calendar drag and drop - only updates time - separate to update method and needs to be called before apiResource
+    Route::put('/tasks/{task}/time', 'App\Http\Controllers\TaskController@updateTime');
+    // Called when clicking complete button on tasks table
+    Route::put('/tasks/{task}/complete', 'App\Http\Controllers\TaskController@completeTask');
+    Route::apiResource('/tasks', 'App\Http\Controllers\TaskController');
+    // Activities
+    Route::apiResource('/activities', 'App\Http\Controllers\ActivityController');
 
 });
 

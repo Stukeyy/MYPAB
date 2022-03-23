@@ -15,17 +15,26 @@ class Check extends Model
      * @var string[]
      */
     protected $fillable = [
-        'event_id',
+        // 'event_id',
+        // 'task_id',
         'check',
         'completed'
     ];
 
-    /**
-     * Get the event that the check belongs to.
-     */
-    public function event()
-    {
-        return $this->belongsToMany(Event::class)->withTimestamps();
-    }
+    // /**
+    //  * Get the event that the check belongs to.
+    //  */
+    // public function event()
+    // {
+    //     return $this->belongsToMany(Event::class)->withTimestamps();
+    // }
+
+    // /**
+    //  * Get the task that the check belongs to.
+    //  */
+    // public function task()
+    // {
+    //     return $this->belongsToMany(Task::class)->withTimestamps();
+    // }
 
 }

@@ -22,6 +22,7 @@ class Commitment extends Model
         'day',
         'start_time',
         'end_time',
+        'all_day',
         'start_date',
         'end_date'
     ];

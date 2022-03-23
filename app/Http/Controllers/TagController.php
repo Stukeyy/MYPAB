@@ -29,7 +29,7 @@ class TagController extends Controller
 
         if ($request['type'] === 'table') {
             // tags paginated for tag table
-            return response(new TagCollection(Auth::user()->tags()->paginate(3)->appends(request()->query())), 200);
+            return response(new TagCollection(Auth::user()->tags()->paginate(10)->appends(request()->query())), 200);
         }
         else {
             // all tags returned for add and update forms

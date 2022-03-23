@@ -24,7 +24,7 @@ class CommitmentController extends Controller
      */
     public function index()
     {
-        return response(new CommitmentCollection(Auth::user()->commitments()->paginate(3)), 200);
+        return response(new CommitmentCollection(Auth::user()->commitments()->paginate(10)), 200);
     }
 
     /**

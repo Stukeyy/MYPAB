@@ -24,6 +24,11 @@ Route::post('/register/email', 'App\Http\Controllers\Auth\AuthController@checkEm
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
+    // Version
+    Route::get('/version', function () {
+        return response('v1.0.0', 200);
+    });
+
     // Get User
     Route::get('/user', 'App\Http\Controllers\DashboardController@user');
     Route::get('/authUser', 'App\Http\Controllers\Auth\AuthController@authUser');

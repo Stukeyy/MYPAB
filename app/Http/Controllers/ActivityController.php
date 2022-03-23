@@ -26,7 +26,7 @@ class ActivityController extends Controller
 
         if ($request['type'] === 'table') {
             // activities paginated for activity table
-            return response(new ActivityCollection(Auth::user()->activities()->paginate(3)->appends(request()->query())), 200);
+            return response(new ActivityCollection(Auth::user()->activities()->paginate(10)->appends(request()->query())), 200);
         }
     }
 

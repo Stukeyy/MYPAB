@@ -59,7 +59,7 @@ class BalancerController extends Controller
             {
                 // balance week must be done now rather than via a queued job
                 // as any new commitments, events, tasks or tag updates will affect balance
-                $this->balanceWeek();
+                return $this->balanceWeek();
                 return response("Week Balanced", 200);
             }
             catch(\Exception $error)
@@ -115,9 +115,9 @@ class BalancerController extends Controller
                 $randomEndTime = (($hour + 1) < 10) ? "0" . ($hour + 1) . ":00" : ($hour + 1) . ":00";
 
                 $conflict = false;
-                // checks through all current events for the week (even the new ones which are generate and added) and if any conflicts, will reloop
+                // checks through all current events for the week (even the new ones which are generated and added) and if any conflicts, will reloop
                 foreach($allWeeklyEvents as $event) {
-                    if ($event->start_date == $randomDate && ($event->start_time == $randomStartTime || $event->end_time == $randomEndTime)) {
+                    if ($event->start_date == $randomDate && $event->start_time <= $randomStartTime && $event->end_time >= $randomEndTime) {
                         $conflict = true;
                         break;
                     }
@@ -192,7 +192,7 @@ class BalancerController extends Controller
         }
 
         $workBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
-        $lifeBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
+        $lifeBalanceRemaining = round($halfOfBusinessHours - $currentLifeHours);
         $balanceHours = [
             "workBalanceRemaining" => $workBalanceRemaining,
             "lifeBalanceRemaining" => $lifeBalanceRemaining,

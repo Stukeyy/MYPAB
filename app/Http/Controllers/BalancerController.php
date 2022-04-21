@@ -59,7 +59,7 @@ class BalancerController extends Controller
             {
                 // balance week must be done now rather than via a queued job
                 // as any new commitments, events, tasks or tag updates will affect balance
-                return $this->balanceWeek();
+                $this->balanceWeek();
                 return response("Week Balanced", 200);
             }
             catch(\Exception $error)

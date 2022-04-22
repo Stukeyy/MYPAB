@@ -24,11 +24,13 @@ class TimetableResource extends JsonResource
         if (isset($this->task)) {
             $type = 'task';
             $title = $this->task;
+            $completed = $this->completed;
         }
         // Individual Events and Commitment Events
         else {
             $type = 'event';
             $title = $this->name;
+            $completed = false;
         }
 
         // If a start date, start time and end time have been set
@@ -65,6 +67,7 @@ class TimetableResource extends JsonResource
             'backgroundColor' => $colour,
             'borderColor' => $colour,
             'type' => $type,
+            'completed' => $completed,
             'suggested' => $this->suggested,
             'colour' => $this->tag->colour
         ];

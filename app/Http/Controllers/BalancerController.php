@@ -115,13 +115,25 @@ class BalancerController extends Controller
                 $randomEndTime = (($hour + 1) < 10) ? "0" . ($hour + 1) . ":00" : ($hour + 1) . ":00";
 
                 $conflict = false;
-                // checks through all current events for the week (even the new ones which are generate and added) and if any conflicts, will reloop
+                // checks through all current events for the week (even the new ones which are generated and added) and if any conflicts, will reloop
                 foreach($allWeeklyEvents as $event) {
-                    if ($event->start_date == $randomDate && ($event->start_time == $randomStartTime || $event->end_time == $randomEndTime)) {
+                    // conflict occurs if suggested event takes place DURING current event
+                    if ($event->start_date == $randomDate && $event->start_time <= $randomStartTime && $event->end_time >= $randomEndTime) {
+                        $conflict = true;
+                        break;
+                    }
+                    // conflict occurs if suggested event takes place OVER current event start
+                    else if ($event->start_date == $randomDate && $event->start_time > $randomStartTime && $event->start_time < $randomEndTime) {
+                        $conflict = true;
+                        break;
+                    }
+                    // conflict occurs if suggested event takes place OVER current event end
+                    else if ($event->start_date == $randomDate && $event->end_time > $randomStartTime && $event->end_time < $randomEndTime) {
                         $conflict = true;
                         break;
                     }
                 }
+
 
                 // any conflicts reloop
                 if ($conflict) {
@@ -192,7 +204,7 @@ class BalancerController extends Controller
         }
 
         $workBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
-        $lifeBalanceRemaining = round($halfOfBusinessHours - $currentWorkHours);
+        $lifeBalanceRemaining = round($halfOfBusinessHours - $currentLifeHours);
         $balanceHours = [
             "workBalanceRemaining" => $workBalanceRemaining,
             "lifeBalanceRemaining" => $lifeBalanceRemaining,

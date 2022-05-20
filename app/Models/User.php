@@ -116,11 +116,11 @@ class User extends Authenticatable
     }
     public function completed_tasks()
     {
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', true)->orderBy('updated_at', 'DESC')->withTimestamps();
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', true)->orderBy('start_date', 'DESC')->withTimestamps();
     }
     public function incomplete_tasks()
     {
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy('updated_at', 'DESC')->withTimestamps();
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy('start_date', 'DESC')->withTimestamps();
     }
     // returns the tasks which have been assigned a date to be displayed on the calendar
     public function dated_tasks()

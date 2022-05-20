@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // Version
     Route::get('/version', function () {
-        return response('v1.4.3', 200);
+        return response('v1.5.2', 200);
     });
 
     // Get User

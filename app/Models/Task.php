@@ -52,4 +52,14 @@ class Task extends Model
     {
         return $this->belongsTo(Tag::class);
     }
+
+    public function priorityColour() {
+        if ($this->priority === 'high') {
+            return 'red';
+        } else if ($this->priority === 'medium') {
+            return 'yellow';
+        } else {
+            return 'green';
+        }
+    }
 }

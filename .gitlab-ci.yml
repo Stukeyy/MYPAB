@@ -41,6 +41,8 @@ trigger:
   trigger:
     project: final-project24/frontend
     branch: newpipe
+  only:
+    - newpipe
 
 
 # do not need to do anymore as once all recent changes pushed, will trigger frontend project pipeline which will connect to EC2 server pull down latest changes for both front and back, then build and integrate

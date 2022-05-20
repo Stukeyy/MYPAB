@@ -21,6 +21,19 @@ class TaskResource extends JsonResource
 
         if ($type === "index") {
 
+            $noChecklist = true;
+            $checklistRatio = false;
+            if (count($this->checks) > 0) {
+                $completedChecks = 0;
+                foreach ($this->checks as $check) {
+                    if ($check->completed) {
+                        $completedChecks++;
+                    }
+                }
+                $noChecklist = false;
+                $checklistRatio = $completedChecks . '/' . count($this->checks);
+            }
+
             return [
                 'id' => $this->id,
                 'task' => $this->task,
@@ -32,7 +45,8 @@ class TaskResource extends JsonResource
                 'end_time' => $this->end_time,
                 'start_date' => $this->start_date,
                 'completed' => $this->completed,
-                'noChecklist' => (count($this->checks) === 0),
+                'noChecklist' => $noChecklist,
+                'checklistRatio' => $checklistRatio,
                 'checklist' => CheckResource::collection($this->checks)
             ];
 

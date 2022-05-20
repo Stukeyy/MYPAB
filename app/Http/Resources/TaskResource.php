@@ -34,6 +34,25 @@ class TaskResource extends JsonResource
                 $checklistRatio = $completedChecks . '/' . count($this->checks);
             }
 
+            $taskUrgency = "future";
+            if ($this->start_date) {
+                $today = Carbon::now();
+                $carbon_start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
+                if (!$carbon_start_date->isPast()) {
+                    $daysUntilTask = $today->diffInDays($carbon_start_date);
+                    // task is today or tommorrow
+                    if ($daysUntilTask <= 2) {
+                        $taskUrgency = 'imminent';
+                    // task is within a week
+                    } else if ($daysUntilTask > 2 && $daysUntilTask <= 7) {
+                        $taskUrgency = 'thisWeek';
+                    // task is next week
+                    } else if ($daysUntilTask > 7 && $daysUntilTask <= 14) {
+                        $taskUrgency = 'nextWeek';
+                    }
+                }
+            }
+
             return [
                 'id' => $this->id,
                 'task' => $this->task,
@@ -47,6 +66,7 @@ class TaskResource extends JsonResource
                 'completed' => $this->completed,
                 'noChecklist' => $noChecklist,
                 'checklistRatio' => $checklistRatio,
+                'taskUrgency' => $taskUrgency,
                 'checklist' => CheckResource::collection($this->checks)
             ];
 

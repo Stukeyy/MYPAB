@@ -114,13 +114,15 @@ class User extends Authenticatable
         // Returned by pivot table so must be many to many - although each task will only have one user
         return $this->belongsToMany(Task::class, 'user_tasks')->withTimestamps();
     }
-    public function completed_tasks()
+    public function completed_tasks(String $orderColumn = 'start_date')
     {
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', true)->orderBy('start_date', 'DESC')->withTimestamps();
+        $direction = ($orderColumn === 'start_date') ? 'ASC' : 'DESC';
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', true)->orderBy($orderColumn, $direction)->withTimestamps();
     }
-    public function incomplete_tasks()
+    public function incomplete_tasks(String $orderColumn = 'start_date')
     {
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy('start_date', 'DESC')->withTimestamps();
+        $direction = ($orderColumn === 'start_date') ? 'ASC' : 'DESC';
+        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy($orderColumn, $direction)->withTimestamps();
     }
     // returns the tasks which have been assigned a date to be displayed on the calendar
     public function dated_tasks()

@@ -51,12 +51,15 @@ class TaskController extends Controller
             "priority" => "required|in:low,medium,high",
             "start_date" => "nullable|string",
             "start_time" => "nullable|string",
-            "end_time" => "nullable|string"
+            "end_time" => "nullable|string",
+            "notes" => "nullable",
+            "checklist" => "nullable"
         ]);
         $validTask['user_id'] = Auth::id();
         $validTask['suggested'] = false;
         $validTask['completed'] = false;
         $validTask['all_day'] = false;
+        $newTask = (object) $request->all();
 
         // format date
         if(isset($validTask['start_date'])) {
@@ -68,6 +71,16 @@ class TaskController extends Controller
         }
 
         $task = Task::create($validTask);
+
+        // Adds checks to DB and assigns to current task
+        foreach($newTask->checklist as $check) {
+            $check = Check::create([
+                "task_id" => $task->id,
+                "check" => $check["value"],
+                "completed" => false
+            ]);
+            $task->checks()->attach($check->id);
+        }
         Auth::user()->tasks()->attach($task->id);
 
         return response('Task Added Successfully', 200);
@@ -158,8 +171,8 @@ class TaskController extends Controller
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);
-        $updatedTask = (object) $request->all();
         $validTask['all_day'] = false;
+        $updatedTask = (object) $request->all();
 
         // format date
         if(isset($validTask['start_date'])) {

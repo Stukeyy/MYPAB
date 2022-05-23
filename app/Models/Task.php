@@ -49,6 +49,7 @@ class Task extends Model
         'pivot'
     ];
 
+    // convert start_date from date type to string to read in FE
     public function getStartDateAttribute($value) {
         if ($value) {
             $date = Carbon::createFromFormat('Y-m-d', $value)->format('d/m/Y');
@@ -56,6 +57,7 @@ class Task extends Model
         }
     }
 
+    // convert start_date from string type to date to store in DB
     public function setStartDateAttribute($value) {
         if ($value) {
             $this->attributes['start_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');

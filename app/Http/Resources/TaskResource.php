@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
+use Log;
 
 class TaskResource extends JsonResource
 {
@@ -37,17 +38,20 @@ class TaskResource extends JsonResource
             $taskUrgency = "future";
             if ($this->start_date) {
                 $today = Carbon::now();
-                $carbon_start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
-                if (!$carbon_start_date->isPast()) {
-                    $daysUntilTask = $today->diffInDays($carbon_start_date);
+                $start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
+                if ($today->isSameDay($start_date)) {
+                    $taskUrgency = 'imminent';
+                }
+                else if (!$start_date->isPast()) {
+                    $daysUntilTask = $today->diffInDays($start_date);
                     // task is today or tommorrow
-                    if ($daysUntilTask <= 2) {
+                    if ($daysUntilTask <= 1) {
                         $taskUrgency = 'imminent';
                     // task is within a week
-                    } else if ($daysUntilTask > 2 && $daysUntilTask <= 7) {
+                    } else if ($daysUntilTask > 1 && $daysUntilTask < 7) {
                         $taskUrgency = 'thisWeek';
                     // task is next week
-                    } else if ($daysUntilTask > 7 && $daysUntilTask <= 14) {
+                    } else if ($daysUntilTask >= 7 && $daysUntilTask < 14) {
                         $taskUrgency = 'nextWeek';
                     }
                 }

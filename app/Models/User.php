@@ -127,7 +127,7 @@ class User extends Authenticatable
     // returns the tasks which have been assigned a date to be displayed on the calendar
     public function dated_tasks()
     {
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('start_date', '!=', '')->withTimestamps();
+        return $this->belongsToMany(Task::class, 'user_tasks')->whereNotNull('start_date')->withTimestamps();
     }
 
     /**

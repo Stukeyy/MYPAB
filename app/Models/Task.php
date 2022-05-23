@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Log;
+use Carbon\Carbon;
+
 class Task extends Model
 {
     use HasFactory;
@@ -29,6 +32,15 @@ class Task extends Model
     ];
 
     /**
+    * The attributes that should be cast.
+    *
+    * @var array
+    */
+    protected $casts = [
+        'start_date' => 'date:Y-m-d',
+    ];
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array
@@ -36,6 +48,19 @@ class Task extends Model
     protected $hidden = [
         'pivot'
     ];
+
+    public function getStartDateAttribute($value) {
+        if ($value) {
+            $date = Carbon::createFromFormat('Y-m-d', $value)->format('d/m/Y');
+            return $date;
+        }
+    }
+
+    public function setStartDateAttribute($value) {
+        if ($value) {
+            $this->attributes['start_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+        }
+    }
 
     /**
      * Get the checks that belong to the Task.

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use App\Models\Tag;
 use App\Models\Task;
 use App\Models\Check;
 use Illuminate\Http\Request;
@@ -25,18 +26,44 @@ class TaskController extends Controller
         $type = $request->validate([
             "type" => "required|string",
             "list" => "required|in:incomplete,completed",
-            "orderColumn" => "required"
+            "orderColumn" => "required",
+            "tagFilter" => "required"
         ]);
         $orderColumn = $request->orderColumn;
+        $tagFilter = $request->tagFilter;
+
+        $totals = [
+            "completedTotal" => Auth::user()->completed_tasks->count(),
+            "incompleteTotal" => Auth::user()->incomplete_tasks->count(),
+            "tasksTotal" => (Auth::user()->completed_tasks->count() + Auth::user()->incomplete_tasks->count())
+        ];
+        // totals added to request so they are accessible in resource
+        $request["totals"] = $totals;
+
+        // tags added to request so they are accessible in resource
+        $taskTags = $this->getTaskTags();
+        $request["tags"] = $taskTags;
 
         if ($request['type'] === 'index') {
             if ($request['list'] === 'incomplete') {
-                return response(new TaskCollection(Auth::user()->incomplete_tasks($orderColumn)->paginate(10)->appends(request()->query())), 200);
+                return response(new TaskCollection(Auth::user()->incomplete_tasks($orderColumn, $tagFilter)->paginate(10)->appends(request()->query())), 200);
             }
             else if ($request['list'] === 'completed') {
-                return response(new TaskCollection(Auth::user()->completed_tasks($orderColumn)->paginate(10)->appends(request()->query())), 200);
+                return response(new TaskCollection(Auth::user()->completed_tasks($orderColumn, $tagFilter)->paginate(10)->appends(request()->query())), 200);
             }
         }
+    }
+
+    // returns array of tag IDs for the completed tasks as well as incomplete tasks to show separate selector values for each list tagFilter in frontend
+    public function getTaskTags() {
+        $incompleteTaskTags = Auth::user()->incomplete_tasks->pluck('tag_id');
+        $incompleteTags = Tag::whereIn('id', $incompleteTaskTags)->get();
+        $completedTaskTags = Auth::user()->completed_tasks->pluck('tag_id');
+        $completedTags = Tag::whereIn('id', $completedTaskTags)->get();
+        return [
+            "incompleteTags" => $incompleteTags,
+            "completedTags" => $completedTags
+        ];
     }
 
     /**

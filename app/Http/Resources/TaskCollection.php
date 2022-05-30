@@ -16,6 +16,7 @@ class TaskCollection extends ResourceCollection
     {
         return [
             'data' => $this->collection,
+            'tags' => $request->tags,
             'pagination' => [
                 'totalTasks' => $this->total(),
                 'tasksPerPage' => $this->perPage(),
@@ -24,6 +25,7 @@ class TaskCollection extends ResourceCollection
                 'nextPage' => $this->nextPageUrl(),
                 'pageUrls' => $this->getUrlRange(1, $this->lastPage())
             ],
+            'totals' => $request->totals
         ];
     }
 }

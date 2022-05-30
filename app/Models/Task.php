@@ -60,6 +60,9 @@ class Task extends Model
     public function setStartDateAttribute($value) {
         if ($value) {
             $this->attributes['start_date'] = Carbon::createFromFormat('d/m/Y', $value)->format('Y-m-d');
+        } else {
+            // if date has been removed then must set to null
+            $this->attributes['start_date'] = null;
         }
     }
 

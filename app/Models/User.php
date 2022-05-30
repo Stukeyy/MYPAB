@@ -114,15 +114,37 @@ class User extends Authenticatable
         // Returned by pivot table so must be many to many - although each task will only have one user
         return $this->belongsToMany(Task::class, 'user_tasks')->withTimestamps();
     }
-    public function completed_tasks(String $orderColumn = 'start_date')
+    public function completed_tasks(String $orderColumn = 'start_date', $tagFilter = 'all')
     {
-        $direction = ($orderColumn === 'start_date') ? 'ASC' : 'DESC';
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', true)->orderBy($orderColumn, $direction)->withTimestamps();
+        if ($tagFilter === 'all') {
+            $tagFilter = $this->tags->pluck('id');
+        } else {
+            // If a tag ID has been selected, convert to an array to use in whereIn
+            $tagFilter = (array) $tagFilter;
+        }
+
+        if ($orderColumn === 'priority') {
+            return $this->belongsToMany(Task::class, 'user_tasks')->whereIn('tag_id', $tagFilter)->where('completed', true)->orderByRaw("case priority when 'high' then 1 when 'medium' then 2 when 'low' then 3 end")->withTimestamps();
+        } else {
+            $direction = ($orderColumn === 'start_date') ? 'ASC' : 'DESC';
+            return $this->belongsToMany(Task::class, 'user_tasks')->whereIn('tag_id', $tagFilter)->where('completed', true)->orderBy($orderColumn, $direction)->withTimestamps();
+        }
     }
-    public function incomplete_tasks(String $orderColumn = 'start_date')
+    public function incomplete_tasks(String $orderColumn = 'start_date', $tagFilter = 'all')
     {
-        $direction = ($orderColumn === 'start_date') ? 'ASC' : 'DESC';
-        return $this->belongsToMany(Task::class, 'user_tasks')->where('completed', false)->orderBy($orderColumn, $direction)->withTimestamps();
+        if ($tagFilter === 'all') {
+            $tagFilter = $this->tags->pluck('id');
+        } else {
+            // If a tag ID has been selected, convert to an array to use in whereIn
+            $tagFilter = (array) $tagFilter;
+        }
+
+        if ($orderColumn === 'priority') {
+            return $this->belongsToMany(Task::class, 'user_tasks')->whereIn('tag_id', $tagFilter)->where('completed', false)->orderByRaw("case priority when 'high' then 1 when 'medium' then 2 when 'low' then 3 end")->withTimestamps();
+        } else {
+            $direction = ($orderColumn === 'start_date') ? 'ASC' : 'DESC';
+            return $this->belongsToMany(Task::class, 'user_tasks')->whereIn('tag_id', $tagFilter)->where('completed', false)->orderBy($orderColumn, $direction)->withTimestamps();
+        }
     }
     // returns the tasks which have been assigned a date to be displayed on the calendar
     public function dated_tasks()

@@ -38,11 +38,11 @@ class TaskResource extends JsonResource
             if (!($this->completed) && $this->start_date) {
                 $today = Carbon::now();
                 $start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
-                if ($start_date->isPast()) {
-                    $taskUrgency = 'overdue';
-                }
-                else if ($today->isSameDay($start_date)) {
+                if ($today->isSameDay($start_date)) {
                     $taskUrgency = 'imminent';
+                }
+                else if ($start_date->isPast()) {
+                    $taskUrgency = 'overdue';
                 }
                 else if (!$start_date->isPast()) {
                     $daysUntilTask = $today->diffInDays($start_date);

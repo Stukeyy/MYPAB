@@ -7,11 +7,15 @@ use App\Models\Tag;
 use App\Models\Task;
 use App\Models\Check;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 use Carbon\Carbon;
 
 use App\Http\Resources\TaskResource;
 use App\Http\Resources\TaskCollection;
+
+use App\Mail\TestMail;
+use App\Jobs\TestJob;
 
 class TaskController extends Controller
 {
@@ -112,6 +116,14 @@ class TaskController extends Controller
         }
         Auth::user()->tasks()->attach($task->id);
 
+        // Auth::user()->email
+        // Mail::to("stephenr.ross@yahoo.com")->send(new TestMail());
+
+        // NEED TO RESTART QUEUE AFTER ANY JOB CHANGES
+        // php artisan queue:listen --timeout=0
+        // May need to add queue to start up script in term2
+        // Can pass in this format to delay - "2022-07-02T19:26:33.055251Z"
+        TestJob::dispatch()->delay(now()->addMinutes(1));
         return response('Task Added Successfully', 200);
     }
 

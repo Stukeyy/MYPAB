@@ -85,6 +85,8 @@ class TaskController extends Controller
             "start_date" => "nullable|string",
             "start_time" => "nullable|string",
             "end_time" => "nullable|string",
+            "reminder_date" => "nullable|string",
+            "reminder_time" => "nullable|string",
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);
@@ -93,6 +95,8 @@ class TaskController extends Controller
         $validTask['completed'] = false;
         $validTask['all_day'] = false;
         $newTask = (object) $request->all();
+
+        return response($request->all());
 
         // format date
         if(isset($validTask['start_date'])) {

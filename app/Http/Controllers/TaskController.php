@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Auth;
 use App\Models\Tag;
 use App\Models\Task;
@@ -14,8 +15,8 @@ use Carbon\Carbon;
 use App\Http\Resources\TaskResource;
 use App\Http\Resources\TaskCollection;
 
-use App\Mail\TestMail;
 use App\Jobs\TestJob;
+use App\Mail\TestMail;
 
 class TaskController extends Controller
 {
@@ -85,8 +86,7 @@ class TaskController extends Controller
             "start_date" => "nullable|string",
             "start_time" => "nullable|string",
             "end_time" => "nullable|string",
-            "reminder_date" => "nullable|string",
-            "reminder_time" => "nullable|string",
+            "reminders" => "nullable",
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);
@@ -96,7 +96,7 @@ class TaskController extends Controller
         $validTask['all_day'] = false;
         $newTask = (object) $request->all();
 
-        return response($request->all());
+        // return response($request->all());
 
         // format date
         if(isset($validTask['start_date'])) {
@@ -108,6 +108,13 @@ class TaskController extends Controller
         }
 
         $task = Task::create($validTask);
+
+        if(isset($validTask['reminders'])) {
+            foreach($validTask['reminders'] as $reminder) {
+                $reminder_carbon_format = Carbon::createFromFormat('d/m/Y H:i', $reminder['date'] . ' ' . $reminder['time']);
+                TestJob::dispatch($task)->delay($reminder_carbon_format);
+            }
+        }
 
         // Adds checks to DB and assigns to current task
         foreach($newTask->checklist as $check) {
@@ -127,7 +134,8 @@ class TaskController extends Controller
         // php artisan queue:listen --timeout=0
         // May need to add queue to start up script in term2
         // Can pass in this format to delay - "2022-07-02T19:26:33.055251Z"
-        TestJob::dispatch()->delay(now()->addMinutes(1));
+        // TestJob::dispatch()->delay(now()->addMinutes(1));
+
         return response('Task Added Successfully', 200);
     }
 

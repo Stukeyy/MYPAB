@@ -14,5 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('index');
+    $task = \App\Models\Task::latest()->first();
+    \Log::info($task);
+    return view('test')->with('task', $task);
 });

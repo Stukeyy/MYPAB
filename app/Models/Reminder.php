@@ -17,6 +17,9 @@ class Reminder extends Model
     protected $fillable = [
         'user_id',
         'task_id',
-        'job_id'
+        'job_id',
+        'created_at',
+        'updated_at'
     ];
+
 }

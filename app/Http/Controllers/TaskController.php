@@ -112,62 +112,6 @@ class TaskController extends Controller
 
         $task = Task::create($validTask);
 
-        if(isset($validTask['reminders'])) {
-            foreach($validTask['reminders'] as $reminder) {
-                $reminder_carbon_format = Carbon::createFromFormat('d/m/Y H:i', $reminder['date'] . ' ' . $reminder['time']);
-                TestJob::dispatch($task)->delay($reminder_carbon_format);
-                // GetJobID::dispatch(Auth::id(), $task);
-
-                // ---------------------------------------------------------------------------------------------------
-
-                // When a job is created, even if delayed and inserted to jobs table, you can only access it within the handle method
-                // the handle method is only run when the job is being executed, even if delayed
-                // so couldnt get job ids related to task
-                // could potential have made a config var to act as global id of each job but this didnt feel secure
-
-                // instead, I get all the jobs within the last hour to ensure current task jobs are included
-                // then check the jobs and see if any jobs are associated with the current task by id
-                // then add the user id, task id and job id into reminders table
-                // however getting some duplication but good draft working
-                // originally ran within a separate job but duplications were worse I think due to dispatch time
-                // may need to run after the job has been offically made or else make loop more specific to task ID and time
-
-                // only some slight adjustments remaining
-                // then fix frontend validation
-                // then server with queue service
-
-                // ---------------------------------------------------------------------------------------------------
-
-                // Get all jobs created within last hour
-                // This will include the Job created for each reminder
-                // Set within last hour incase other users also submit tasks with reminders
-                // This insures that task reminder jobs will be present without obtaining whole collection
-                $withinLastHour = Carbon::now()->subHour()->timestamp;
-                $jobs = Job::where('created_at', '>', $withinLastHour)->get();
-
-                foreach($jobs as $job) {
-                    // Job data is serialized and stored as payload when Job is created
-                    // Need to decode and unserialize data to access
-                    $jobPayload = json_decode($job->payload);
-                    $jobData = unserialize($jobPayload->data->command);
-                    $jobTaskID = json_encode($jobData->task->id);
-                    $jobTaskID = intval($jobTaskID);
-
-                    // Task Model is attached to Job via constructor method
-                    // Check to see if the Jobs Task matches the current Task
-                    // If it does, then this is the Job ID associated with the Tasks reminder
-                    if ($jobTaskID === $task->id) {
-                        Reminder::create([
-                            'user_id' => Auth::user()->id,
-                            'task_id' => $task->id,
-                            'job_id' => $job->id
-                        ]);
-                    }
-
-                }
-            }
-        }
-
         // Adds checks to DB and assigns to current task
         foreach($newTask->checklist as $check) {
             $check = Check::create([
@@ -179,16 +123,59 @@ class TaskController extends Controller
         }
         Auth::user()->tasks()->attach($task->id);
 
-        // Auth::user()->email
-        // Mail::to("stephenr.ross@yahoo.com")->send(new TestMail());
-
-        // NEED TO RESTART QUEUE AFTER ANY JOB CHANGES
-        // php artisan queue:listen --timeout=0
-        // May need to add queue to start up script in term2
-        // Can pass in this format to delay - "2022-07-02T19:26:33.055251Z"
-        // TestJob::dispatch()->delay(now()->addMinutes(1));
+        // Dispatches Task Reminder Jobs and also creates Reminders with their assoicated Job IDs
+        if(isset($validTask['reminders'])) {
+            foreach($validTask['reminders'] as $reminder) {
+                $reminder_carbon_format = Carbon::createFromFormat('d/m/Y H:i', $reminder['date'] . ' ' . $reminder['time']);
+                TestJob::dispatch($task)->delay($reminder_carbon_format);
+                $this->attachJobIDsToReminders($task);
+            }
+        }
 
         return response('Task Added Successfully', 200);
+    }
+
+
+    // When a job is created, even if delayed and inserted to jobs table, you can only access it within the handle method
+    // the handle method is only run when the job is being executed, even if delayed
+    // this is a workaround to get the Job IDs related to the Task Reminders
+    public function attachJobIDsToReminders(Task $task) {
+
+        // Get all jobs created within last hour
+        // This will include the Job created for each Task Reminder set
+        // Set within last hour incase other users also submit Tasks with Reminders
+        // This ensures that specific Task Reminder jobs will be present without obtaining whole Jobs collection
+        $withinLastHour = Carbon::now()->subHour()->timestamp;
+        $jobs = Job::where('created_at', '>', $withinLastHour)->get();
+
+        foreach($jobs as $job) {
+            // Job data is serialized and stored as payload when Job is created
+            // Need to decode and unserialize data to access
+            $jobPayload = json_decode($job->payload);
+            $jobData = unserialize($jobPayload->data->command);
+            $jobTaskID = json_encode($jobData->task->id);
+            $jobTaskID = intval($jobTaskID);
+
+            // Task Model is attached to Job via constructor method during dispatch
+            // Check to see if the Jobs associated Task matches the current Task
+            // If it does, then this is the Job ID associated with the Tasks Reminder
+            if ($jobTaskID === $task->id) {
+                // If Task has multiple Reminders, then multiple Jobs will be created for each Task Reminder
+                // As all still associated to the same Task, can result in duplicate Reminders being created
+                // Update Or Create will ensure that there are no duplicates based on Job ID
+                Reminder::updateOrCreate(
+                    [
+                        'job_id' => $job->id
+                    ],
+                    [
+                        'user_id' => Auth::user()->id,
+                        'task_id' => $task->id,
+                        'job_id' => $job->id
+                    ]
+                );
+            }
+
+        }
     }
 
     // Called when clicking complete button on tasks table

@@ -18,8 +18,18 @@ class Reminder extends Model
         'user_id',
         'task_id',
         'job_id',
+        'date_to_send',
+        'time_to_send',
         'created_at',
         'updated_at'
     ];
+
+    /**
+     * Get the Job associated with the Reminder.
+     */
+    public function job()
+    {
+        return $this->hasOne(Job::class, 'id', 'job_id');
+    }
 
 }

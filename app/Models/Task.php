@@ -66,12 +66,14 @@ class Task extends Model
         }
     }
 
-    /**
-     * Get the checks that belong to the Task.
-     */
-    public function checks()
-    {
-        return $this->belongsToMany(Check::class, 'task_checks')->orderBy('id')->withTimestamps();
+    public function priorityColour() {
+        if ($this->priority === 'high') {
+            return 'red';
+        } else if ($this->priority === 'medium') {
+            return 'yellow';
+        } else {
+            return 'green';
+        }
     }
 
     /**
@@ -82,13 +84,20 @@ class Task extends Model
         return $this->belongsTo(Tag::class);
     }
 
-    public function priorityColour() {
-        if ($this->priority === 'high') {
-            return 'red';
-        } else if ($this->priority === 'medium') {
-            return 'yellow';
-        } else {
-            return 'green';
-        }
+    /**
+     * Get the checks that belong to the Task.
+     */
+    public function checks()
+    {
+        return $this->belongsToMany(Check::class, 'task_checks')->orderBy('id')->withTimestamps();
     }
+
+    /**
+     * Get the reminders that belong to the Task.
+     */
+    public function reminders()
+    {
+        return $this->hasMany(Reminder::class)->orderBy('date_to_send')->orderBy('time_to_send');
+    }
+
 }

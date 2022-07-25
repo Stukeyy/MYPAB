@@ -18,6 +18,8 @@ class CreateRemindersTable extends Migration
             $table->foreignId('user_id')->constrained()->onDelete("cascade");
             $table->foreignId('task_id')->constrained()->onDelete("cascade");
             $table->foreignId('job_id')->constrained()->onDelete("cascade");
+            $table->date("date_to_send");
+            $table->time("time_to_send");
             $table->timestamps();
         });
     }

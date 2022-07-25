@@ -126,9 +126,11 @@ class TaskController extends Controller
         // Dispatches Task Reminder Jobs and also creates Reminders with their assoicated Job IDs
         if(isset($validTask['reminders'])) {
             foreach($validTask['reminders'] as $reminder) {
+                $reminder_date_carbon_format = Carbon::createFromFormat('d/m/Y', $reminder['date']);
+                $reminder_time_carbon_format = Carbon::createFromFormat('H:i', $reminder['time']);
                 $reminder_carbon_format = Carbon::createFromFormat('d/m/Y H:i', $reminder['date'] . ' ' . $reminder['time']);
                 TestJob::dispatch($task)->delay($reminder_carbon_format);
-                $this->attachJobIDsToReminders($task);
+                $this->attachJobIDsToReminders($task, $reminder_date_carbon_format, $reminder_time_carbon_format);
             }
         }
 
@@ -139,7 +141,7 @@ class TaskController extends Controller
     // When a job is created, even if delayed and inserted to jobs table, you can only access it within the handle method
     // the handle method is only run when the job is being executed, even if delayed
     // this is a workaround to get the Job IDs related to the Task Reminders
-    public function attachJobIDsToReminders(Task $task) {
+    public function attachJobIDsToReminders(Task $task, $reminderDate, $reminderTime) {
 
         // Get all jobs created within last hour
         // This will include the Job created for each Task Reminder set
@@ -162,20 +164,23 @@ class TaskController extends Controller
             if ($jobTaskID === $task->id) {
                 // If Task has multiple Reminders, then multiple Jobs will be created for each Task Reminder
                 // As all still associated to the same Task, can result in duplicate Reminders being created
-                // Update Or Create will ensure that there are no duplicates based on Job ID
-                Reminder::updateOrCreate(
+                // First Or Create will ensure that there are no duplicates based on Job ID
+                $reminder = Reminder::firstOrCreate(
                     [
                         'job_id' => $job->id
                     ],
                     [
                         'user_id' => Auth::user()->id,
                         'task_id' => $task->id,
-                        'job_id' => $job->id
+                        'job_id' => $job->id,
+                        'date_to_send' => $reminderDate,
+                        'time_to_send' => $reminderTime
                     ]
                 );
             }
 
         }
+
     }
 
     // Called when clicking complete button on tasks table

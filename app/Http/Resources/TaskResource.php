@@ -130,9 +130,12 @@ class TaskResource extends JsonResource
                 'all_day' => $this->all_day,
                 'start_date' => ($hasDate) ? $start_date : '',
                 'start_date_object' => ($hasDate) ? $start_date : '',
+                'hasNotes' => (strlen($this->notes) > 0),
                 'notes' => $this->notes,
-                'noChecklist' => (count($this->checks) === 0),
-                'checklist' => CheckResource::collection($this->checks)
+                'hasChecks' => (count($this->checks) > 0),
+                'checklist' => CheckResource::collection($this->checks),
+                'hasReminders' => (count($this->reminders) > 0),
+                'reminders' => ReminderResource::collection($this->reminders),
             ];
 
         }

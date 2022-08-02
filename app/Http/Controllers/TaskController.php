@@ -265,6 +265,7 @@ class TaskController extends Controller
             "start_date" => "nullable|string",
             "start_time" => "nullable|string",
             "end_time" => "nullable|string",
+            "reminders" => "nullable",
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);

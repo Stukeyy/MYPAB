@@ -379,6 +379,18 @@ class TaskController extends Controller
         }
         // deletes checks from pivot table
         $task->checks()->detach();
+
+        // deletes the tasks reminders and their associated jobs
+        $reminders = $task->reminders;
+        foreach ($reminders as $reminder) {
+            $originalReminder = Reminder::find($reminder["id"]);
+            // If original reminder is found, then an associated job will exist, this will delete both the job and the reminder
+            if ($originalReminder) {
+                Job::destroy($originalReminder["job_id"]);
+                Reminder::destroy($originalReminder["id"]);
+            }
+        }
+
         $task->delete();
         return response("Task Deleted Successfully", 200);
     }

@@ -104,8 +104,12 @@ class TaskResource extends JsonResource
                 'end_time' => $this->end_time,
                 'start_date' => $this->start_date,
                 'completed' => $this->completed,
+                'hasNotes' => (strlen($this->notes) > 0),
                 'notes' => $this->notes,
-                'checklist' => (count($this->checks) > 0) ? CheckResource::collection($this->checks) : null
+                'hasChecks' => (count($this->checks) > 0),
+                'checklist' => CheckResource::collection($this->checks),
+                'hasReminders' => (count($this->reminders) > 0),
+                'reminders' => ReminderResource::collection($this->reminders)
             ];
 
         }
@@ -135,7 +139,7 @@ class TaskResource extends JsonResource
                 'hasChecks' => (count($this->checks) > 0),
                 'checklist' => CheckResource::collection($this->checks),
                 'hasReminders' => (count($this->reminders) > 0),
-                'reminders' => ReminderResource::collection($this->reminders),
+                'reminders' => ReminderResource::collection($this->reminders)
             ];
 
         }

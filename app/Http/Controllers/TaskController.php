@@ -2,16 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use Auth;
 use App\Models\Tag;
 use App\Models\Task;
 use App\Models\Check;
+use App\Models\Job;
+use App\Models\Reminder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 use Carbon\Carbon;
 
 use App\Http\Resources\TaskResource;
 use App\Http\Resources\TaskCollection;
+
+use App\Jobs\TestJob;
+use App\Mail\TestMail;
+use App\Jobs\GetJobID;
 
 class TaskController extends Controller
 {
@@ -81,6 +89,7 @@ class TaskController extends Controller
             "start_date" => "nullable|string",
             "start_time" => "nullable|string",
             "end_time" => "nullable|string",
+            "reminders" => "nullable",
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);
@@ -89,6 +98,8 @@ class TaskController extends Controller
         $validTask['completed'] = false;
         $validTask['all_day'] = false;
         $newTask = (object) $request->all();
+
+        // return response($request->all());
 
         // format date
         if(isset($validTask['start_date'])) {
@@ -112,7 +123,64 @@ class TaskController extends Controller
         }
         Auth::user()->tasks()->attach($task->id);
 
+        // Dispatches Task Reminder Jobs and also creates Reminders with their assoicated Job IDs
+        if(isset($validTask['reminders'])) {
+            foreach($validTask['reminders'] as $reminder) {
+                $reminder_date_carbon_format = Carbon::createFromFormat('d/m/Y', $reminder['date']);
+                $reminder_time_carbon_format = Carbon::createFromFormat('H:i', $reminder['time']);
+                $reminder_carbon_format = Carbon::createFromFormat('d/m/Y H:i', $reminder['date'] . ' ' . $reminder['time']);
+                TestJob::dispatch($task)->delay($reminder_carbon_format);
+                $this->attachJobIDsToReminders($task, $reminder_date_carbon_format, $reminder_time_carbon_format);
+            }
+        }
+
         return response('Task Added Successfully', 200);
+    }
+
+
+    // When a job is created, even if delayed and inserted to jobs table, you can only access it within the handle method
+    // the handle method is only run when the job is being executed, even if delayed
+    // this is a workaround to get the Job IDs related to the Task Reminders
+    public function attachJobIDsToReminders(Task $task, $reminderDate, $reminderTime) {
+
+        // Get all jobs created within last hour
+        // This will include the Job created for each Task Reminder set
+        // Set within last hour incase other users also submit Tasks with Reminders
+        // This ensures that specific Task Reminder jobs will be present without obtaining whole Jobs collection
+        $withinLastHour = Carbon::now()->subHour()->timestamp;
+        $jobs = Job::where('created_at', '>', $withinLastHour)->get();
+
+        foreach($jobs as $job) {
+            // Job data is serialized and stored as payload when Job is created
+            // Need to decode and unserialize data to access
+            $jobPayload = json_decode($job->payload);
+            $jobData = unserialize($jobPayload->data->command);
+            $jobTaskID = json_encode($jobData->task->id);
+            $jobTaskID = intval($jobTaskID);
+
+            // Task Model is attached to Job via constructor method during dispatch
+            // Check to see if the Jobs associated Task matches the current Task
+            // If it does, then this is the Job ID associated with the Tasks Reminder
+            if ($jobTaskID === $task->id) {
+                // If Task has multiple Reminders, then multiple Jobs will be created for each Task Reminder
+                // As all still associated to the same Task, can result in duplicate Reminders being created
+                // First Or Create will ensure that there are no duplicates based on Job ID
+                $reminder = Reminder::firstOrCreate(
+                    [
+                        'job_id' => $job->id
+                    ],
+                    [
+                        'user_id' => Auth::user()->id,
+                        'task_id' => $task->id,
+                        'job_id' => $job->id,
+                        'date_to_send' => $reminderDate,
+                        'time_to_send' => $reminderTime
+                    ]
+                );
+            }
+
+        }
+
     }
 
     // Called when clicking complete button on tasks table
@@ -174,6 +242,18 @@ class TaskController extends Controller
             }
             $task->all_day = false;
         }
+
+        // If date or time have been changed then remove all previous reminders and jobs
+        $reminders = $task->reminders;
+        foreach ($reminders as $reminder) {
+            $originalReminder = Reminder::find($reminder["id"]);
+            // If original reminder is found, then an associated job will exist, this will delete both the job and the reminder
+            if ($originalReminder) {
+                Job::destroy($originalReminder["job_id"]);
+                Reminder::destroy($originalReminder["id"]);
+            }
+        }
+
         $task->save();
 
         return response("Task Updated Successfully", 200);
@@ -197,6 +277,7 @@ class TaskController extends Controller
             "start_date" => "nullable|string",
             "start_time" => "nullable|string",
             "end_time" => "nullable|string",
+            "reminders" => "nullable",
             "notes" => "nullable",
             "checklist" => "nullable"
         ]);
@@ -229,9 +310,59 @@ class TaskController extends Controller
             $task->checks()->attach($check->id);
         }
 
+        // Reminders
+        $updatedReminderIDs = [];
+        $originalReminderIDs = $task->reminders->pluck('id')->toArray();
+        foreach($updatedTask->reminders as $reminder) {
+            // Loops through all reminders returned from update form, if they are assoicated with existing reminders via an ID
+            // then the associated job is deleted as well as the reminder itself and new ones are generated
+
+            if (isset($reminder["id"])) {
+                array_push($updatedReminderIDs, $reminder["id"]);
+            }
+
+            // New reminders created in frontend update form will not have ID
+            // Only existing reminders made in add form and returned from backend to update form will have an ID
+            if (isset($reminder["id"])) {
+                $originalReminder = Reminder::find($reminder["id"]);
+                // If original reminder is found, then an associated job will exist, this will delete both the job and the reminder
+                if ($originalReminder) {
+                    Job::destroy($originalReminder["job_id"]);
+                    Reminder::destroy($originalReminder["id"]);
+                }
+            }
+
+            // Dispatches New Task Reminder Jobs and also creates New Reminders with their assoicated New Job IDs
+            $reminder_date_carbon_format = Carbon::createFromFormat('d/m/Y', $reminder['date']);
+            $reminder_time_carbon_format = Carbon::createFromFormat('H:i', $reminder['time']);
+            $reminder_carbon_format = Carbon::createFromFormat('d/m/Y H:i', $reminder['date'] . ' ' . $reminder['time']);
+            TestJob::dispatch($task)->delay($reminder_carbon_format);
+            $this->attachJobIDsToReminders($task, $reminder_date_carbon_format, $reminder_time_carbon_format);
+        }
+
+        // If an existing reminder is deleted in frontend update form, it will not exist in request
+        // all the original IDs are then compared with the new update IDs and if any are missing, then they are deleted as well as their associated job
+        $remindersRemovedInUpdate = array_diff($originalReminderIDs, $updatedReminderIDs);
+        foreach ($remindersRemovedInUpdate as $removedReminderID) {
+            $originalReminder = Reminder::find($removedReminderID);
+            // If original reminder is found, then an associated job will exist, this will delete both the job and the reminder
+            if ($originalReminder) {
+                Job::destroy($originalReminder["job_id"]);
+                Reminder::destroy($originalReminder["id"]);
+            }
+        }
+
         $task->save();
 
         return response("Task Updated Successfully", 200);
+    }
+
+    // Called on View Task Page when X is clicked beside reminder
+    // Will delete the specific reminder and its associated job
+    public function deleteReminder(Reminder $reminder) {
+        Job::destroy($reminder->id);
+        $reminder->delete();
+        return response("Reminder and Job Deleted Successfully", 200);
     }
 
     /**
@@ -248,6 +379,18 @@ class TaskController extends Controller
         }
         // deletes checks from pivot table
         $task->checks()->detach();
+
+        // deletes the tasks reminders and their associated jobs
+        $reminders = $task->reminders;
+        foreach ($reminders as $reminder) {
+            $originalReminder = Reminder::find($reminder["id"]);
+            // If original reminder is found, then an associated job will exist, this will delete both the job and the reminder
+            if ($originalReminder) {
+                Job::destroy($originalReminder["job_id"]);
+                Reminder::destroy($originalReminder["id"]);
+            }
+        }
+
         $task->delete();
         return response("Task Deleted Successfully", 200);
     }

@@ -26,7 +26,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // Version
     Route::get('/version', function () {
-        return response('v1.6.3', 200);
+        return response('v2.0.3', 200);
     });
 
     // Get User
@@ -55,6 +55,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::put('/tasks/{task}/time', 'App\Http\Controllers\TaskController@updateTime');
     // Called when clicking complete button on tasks table
     Route::put('/tasks/{task}/complete', 'App\Http\Controllers\TaskController@completeTask');
+    // Called when clicking X button beside reminder on View Task page
+    Route::delete('/reminders/{reminder}', 'App\Http\Controllers\TaskController@deleteReminder');
     Route::apiResource('/tasks', 'App\Http\Controllers\TaskController');
     // Activities
     Route::apiResource('/activities', 'App\Http\Controllers\ActivityController');

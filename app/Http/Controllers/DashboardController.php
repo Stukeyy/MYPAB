@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Models\User;
 use App\Models\Tag;
+use App\Models\Task;
 use App\Models\Event;
 use App\Models\Activity;
 
@@ -17,6 +18,10 @@ use App\Http\Resources\TimetableResource;
 
 class DashboardController extends Controller
 {
+
+    public function check(Request $request) {
+        return response('check', 200);
+    }
 
     public function user(Request $request)
     {

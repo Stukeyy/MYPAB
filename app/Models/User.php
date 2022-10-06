@@ -200,7 +200,17 @@ class User extends Authenticatable
     }
     public function weeklyTasks()
     {
-        $dates = $this->week();
+        // I recently updated the tasks table start_date column from string type to datetime type to allow the collection to be ordered by date
+        // The datetime type in tasks is now stored as Y-m-d while commitments and events is stored as string type d/m/Y
+        // I use the original d/m/Y format returned by week() function to find commitments and events during the week
+        // And here I convert the format to Y-m-d to find tasks during the week
+        $dates = [];
+        $period = $this->week();
+        foreach ($period as $date) {
+            $formattedDate = \DateTime::createFromFormat('d/m/Y', $date)->format('Y-m-d');
+            array_push($dates, $formattedDate);
+        }
+
         return $this->belongsToMany(Task::class, 'user_tasks')->whereIn("tasks.start_date", $dates);
     }
 

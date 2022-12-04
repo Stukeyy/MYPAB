@@ -92,10 +92,15 @@ gitlab-runner
     - ssh -i key.pem ubuntu@mypa.ml
     - then update application
     - php artisan migrate
+    - composer install
+    - npm install
+    - grant permissions
     - update .env file
     - php artisan config:clear
     - sudo php artisan cache:clear
     - composer dump-autoload
+    - update timezone
+    - reboot
 
 #### Dev Process
 
@@ -117,4 +122,35 @@ gitlab-runner
     - pm2 start "php artisan queue:work --timeout=0"
 4. Monitor service
     - pm2 monit
+
+
+#### New Mac
+
+##### Postgres
+
+New Postgres installed as App rather than System
+Start by running PGAdmin
+Connect via Terminal with:
+- /Library/PostgreSQL/15/scripts/runpsql.sh; exit
+
+
+##### Frontend
+
+Original vue version = 2.6.10
+Full Calendar now requires above vue version 2.6.12
+Decided to install vue 2.7.14, latest stable relase of Vue2 before Vue3
+- npm install vue@2.7.14
+
+npm ERR! code ERESOLVE
+npm ERR! ERESOLVE unable to resolve dependency tree
+npm ERR!
+npm ERR! While resolving: mypa@2.0.3
+npm ERR! Found: vue@2.6.10
+npm ERR! node_modules/vue
+npm ERR!   vue@"2.6.10" from the root project
+npm ERR!
+npm ERR! Could not resolve dependency:
+npm ERR! peer vue@"^2.6.12" from @fullcalendar/vue@5.11.3
+npm ERR! node_modules/@fullcalendar/vue
+npm ERR!   @fullcalendar/vue@"^5.10.0" from the root project
 

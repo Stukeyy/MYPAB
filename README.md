@@ -154,3 +154,28 @@ npm ERR! peer vue@"^2.6.12" from @fullcalendar/vue@5.11.3
 npm ERR! node_modules/@fullcalendar/vue
 npm ERR!   @fullcalendar/vue@"^5.10.0" from the root project
 
+##### CI CD
+
+Currently, the Public Key on the EC2 Instance is for the Private Key on my Old Mac.
+If I want to create a new Key Pair between my New Mac and EC2 Instance, I need to create Key Pair in portal,
+Then I need to retreive the Public Key for the New Key Pair Private Key downloaded from portal,
+Then I need connect to EC2 Instance with Old Mac Private Key and then add New Mac Public Key,
+Then I need to update New Mac Private Key permissions and connect.
+
+Or I could gpg encypt Old Mac Private Key and send to New Mac and decrypt and then connection should be the same.
+
+#### Deploy Process Refresh
+
+Key Pair between Mac and EC2
+Key Pair between GitLab and Mac
+Gitlab Runner registered on Mac
+Push Code to Newpipe Branch
+Sends Pipeline Job to Gitlab Runner
+Backend Triggers Frontend, Frontend Runs Deploy Script
+Connects to EC2 from Mac using Key Pair CI Variable
+Pulls all Backend Changes from GitLab using Key Pair CI Variable
+Pulls all Frontend Changes from GitLab using Key Pair CI Variable
+Builds New Frontend
+Removes Old Frontend Build from Backend
+Adds New Frontend
+

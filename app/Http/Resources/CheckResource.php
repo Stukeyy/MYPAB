@@ -31,7 +31,14 @@ class CheckResource extends JsonResource
               "value" => $this->check,
               "completed" => $this->completed,
               "error" => false
-          ];
+          ]; 
+      } else {
+        // This else is returned when the timetable page is loaded to render the task data in a tooltip, it doesnt have a request type  
+        return [
+            "id" => $this->id,
+            "check" => $this->check,
+            "completed" => $this->completed
+        ];
       }
 
     }

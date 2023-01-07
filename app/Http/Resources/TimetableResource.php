@@ -5,6 +5,8 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
 
+use App\Http\Resources\TaskResource;
+
 class TimetableResource extends JsonResource
 {
     /**
@@ -25,12 +27,17 @@ class TimetableResource extends JsonResource
             $type = 'task';
             $title = $this->task;
             $completed = $this->completed;
+            $priority = $this->priority;
+            $taskResource = new TaskResource($this);
+            // NEED TO ALSO CREATE AND PASS EVENT RESOURCE
         }
         // Individual Events and Commitment Events
         else {
             $type = 'event';
             $title = $this->name;
             $completed = false;
+            $priority = false;
+            $taskResource = [];
         }
 
         // If a start date, start time and end time have been set
@@ -69,8 +76,10 @@ class TimetableResource extends JsonResource
             'type' => $type,
             'completed' => $completed,
             'suggested' => $this->suggested,
-            'colour' => $this->tag->colour
+            'colour' => $this->tag->colour,
+            'task' => $taskResource
         ];
+        // NEED TO ALSO CREATE AND PASS EVENT RESOURCE
 
     }
 }

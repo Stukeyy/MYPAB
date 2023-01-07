@@ -5,6 +5,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
 
+use App\Http\Resources\CheckResource;
+use App\Http\Resources\CheckCollection;
+
 class TaskResource extends JsonResource
 {
     /**
@@ -134,6 +137,41 @@ class TaskResource extends JsonResource
                 'all_day' => $this->all_day,
                 'start_date' => ($hasDate) ? $start_date : '',
                 'start_date_object' => ($hasDate) ? $start_date : '',
+                'hasNotes' => (strlen($this->notes) > 0),
+                'notes' => $this->notes,
+                'hasChecks' => (count($this->checks) > 0),
+                'checklist' => CheckResource::collection($this->checks),
+                'hasReminders' => (count($this->reminders) > 0),
+                'reminders' => ReminderResource::collection($this->reminders)
+            ];
+
+        } else {
+            // This else is returned when the timetable page is loaded to render the task data in a tooltip, it doesnt have a request type
+
+            $hasDate = isset($this->start_date);
+            $hasTime = isset($this->start_time);
+            if ($this->start_date) {
+                $carbon_start_date = Carbon::createFromFormat('d/m/Y', $this->start_date);
+                $inThePast = $carbon_start_date->isPast();
+                $daysUntil = Carbon::now()->diffInDays($carbon_start_date);
+            }
+
+            return [
+                'id' => $this->id,
+                'task' => $this->task,
+                'tag_id' => $this->tag->id,
+                'tag' => $this->tag->name,
+                'priority' => $this->priority,
+                'colour' => $this->tag->colour,
+                'hasDate' => $hasDate,
+                'hasTime' => $hasTime,
+                'inThePast' => ($hasDate) ? $inThePast : null,
+                'daysUntil' => ($hasDate) ? $daysUntil : null,
+                'all_day' => $this->all_day,
+                'start_time' => $this->start_time,
+                'end_time' => $this->end_time,
+                'start_date' => $this->start_date,
+                'completed' => $this->completed,
                 'hasNotes' => (strlen($this->notes) > 0),
                 'notes' => $this->notes,
                 'hasChecks' => (count($this->checks) > 0),

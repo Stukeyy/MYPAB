@@ -77,7 +77,8 @@ class TimetableResource extends JsonResource
             'completed' => $completed,
             'suggested' => $this->suggested,
             'colour' => $this->tag->colour,
-            'task' => $taskResource
+            'task' => $taskResource,
+            'popoverVisible' => true
         ];
         // NEED TO ALSO CREATE AND PASS EVENT RESOURCE
 

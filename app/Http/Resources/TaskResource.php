@@ -139,7 +139,8 @@ class TaskResource extends JsonResource
                 'hasChecks' => (count($this->checks) > 0),
                 'checklist' => CheckResource::collection($this->checks),
                 'hasReminders' => (count($this->reminders) > 0),
-                'reminders' => ReminderResource::collection($this->reminders)
+                'reminders' => ReminderResource::collection($this->reminders),
+                'completed' => $this->completed
             ];
 
         }
